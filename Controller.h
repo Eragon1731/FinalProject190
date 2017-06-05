@@ -27,8 +27,12 @@
 #include <glm/gtx/quaternion.hpp>
 #include <GL/glew.h>
 
-#include <OVR_CAPI.h>
-#include <OVR_CAPI_GL.h>
+//#include <OVR_CAPI.h>
+//#include <OVR_CAPI_GL.h>
+//
+#include "LEAP_SDK\include\Leap.h"
+
+using namespace Leap; 
 
 struct Ray {
 	glm::vec3 origin;
@@ -58,7 +62,7 @@ private:
 	/* Data */
 	Laser laser;
 	Model controllerModel;
-	GLchar* pathToController = "H:/FinalProject/MinimalVR-master/objects/factory4/factory4.obj";
+	GLchar* pathToController = "H:/FinalProject/MinimalVR-master/objects/cube.obj";
 	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
 	GLchar* fragShaderPath   = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag";
 	GLint controllerShader;

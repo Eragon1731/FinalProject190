@@ -51,9 +51,9 @@ private:
 	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
 	GLchar* fragShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag";
 
-	float y_move = rand() % 100 - 50;
-	float x_move = rand() % 100 - 50;
-	float z_move = rand() % 100 - 50;
+	float y_move = (float) (rand() % 100 - 50);
+	float x_move = (float) (rand() % 100 - 50);
+	float z_move = (float) (rand() % 100 - 50);
 
 	bool init = true;
 	int tick = 0;

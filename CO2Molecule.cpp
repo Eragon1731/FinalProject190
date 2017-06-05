@@ -13,10 +13,7 @@ CO2Molecule::CO2Molecule() {
 }
 
 CO2Molecule::CO2Molecule(Model co2M, Model o2M, GLint shaderProgram) {
-	// Create the shader to use for the factory
-	//GLint facS = LoadShaders(vertexShaderPath, fragShaderPath);
 	co2Shader = shaderProgram;
-
 
 	// Creates the model for the factory
 	currentModel = co2M;
