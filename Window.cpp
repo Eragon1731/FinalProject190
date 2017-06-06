@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "GameScene.h"
 
 const char* window_title = "GLFW Starter Project"; 
 GLint shaderProgram;
@@ -20,6 +21,8 @@ glm::mat4 Window::P;
 glm::mat4 Window::V;
 
 using namespace std;
+
+GameScene gameScene; 
 
 void Window::initialize_objects()
 {
@@ -141,6 +144,9 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		{
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
+		}
+		else if (key == GLFW_KEY_R){
+			gameScene.resetGame(); 
 		}
 	}
 }

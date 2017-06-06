@@ -37,11 +37,10 @@ using glm::vec4;
 using glm::quat;
 
 #include "Factory.h"
-#include "Controller.h"
+#include "GameController.h"
 #include "CO2Molecule.h"
 
 using namespace glm;
-
 
 // a class for encapsulating building and rendering an RGB cube
 class GameScene {
@@ -52,13 +51,12 @@ private:
 	
 	CO2Molecule moleculeContainer[MAX_MOLECULES];
 	
-	Controller leftController;
-	Controller rightController;
+	GameController leftController;
+	GameController rightController;
 
 	int lastUsedMolecule = 5;
 	int tick = 0;
 	int activeMolecules = 5;
-
 	int gameState = 0;
 
 public:
@@ -69,7 +67,7 @@ public:
 		glm::vec3 rightControllerPos;
 		glm::vec4 leftControllerOrientation;
 		glm::vec4 rightControllerOrientation;
-		ovrInputState inputState;
+		//ovrInputState inputState;
 	} hmdData;
 
 	GameScene() {
@@ -86,13 +84,6 @@ public:
 	}
 
 	float intersection(glm::vec3 rayOrigin, glm::vec3 rayDir, glm::vec3 moleculePos, float radius) {
-
-		/*glm::vec3 w = rayOrigin - moleculePos;
-		float A = glm::dot(rayDir, rayDir);
-		float B = 2 * glm::dot(w, rayDir);
-		float C = glm::dot(w, w) - (radius*radius);
-		float D = B*B - 4.0f*A*C;
-		return D >= 0.0f ? (-B - sqrt(D)) / (2.0f*A) : std::numeric_limits<float>::infinity();*/
 
 		glm::vec3 dir = rayDir;
 		glm::vec3 eye = rayOrigin;
@@ -239,29 +230,29 @@ public:
 		}
 
 		// Controlls for the left controller
-		leftController.inputState = hmdData.inputState;
-		leftController.btn1 = ovrTouch_X;
-		leftController.btn2 = ovrTouch_Y;
-		leftController.hand = ovrHand_Left;
+		//leftController.inputState = hmdData.inputState;
+		//leftController.btn1 = ovrTouch_X;
+		//leftController.btn2 = ovrTouch_Y;
+		//leftController.hand = ovrHand_Left;
 
 		leftController.position = hmdData.leftControllerPos;
 		leftController.rotation = hmdData.leftControllerOrientation;
 		leftController.Render(modelview, projection);
 
 		// Controlls for the right controller
-		rightController.inputState = hmdData.inputState;
-		rightController.btn1 = ovrTouch_A;
-		rightController.btn2 = ovrTouch_B;
-		rightController.hand = ovrHand_Right;
+		//rightController.inputState = hmdData.inputState;
+		//rightController.btn1 = ovrTouch_A;
+		//rightController.btn2 = ovrTouch_B;
+		//rightController.hand = ovrHand_Right;
 
 		rightController.position = hmdData.rightControllerPos;
 		rightController.rotation = hmdData.rightControllerOrientation;
 		rightController.Render(modelview, projection);
 
 		// Reset the game
-		if (gameState != 0 && hmdData.inputState.Buttons & ovrTouch_A) {
-			resetGame();
-		}
+		//if (gameState != 0 && hmdData.inputState.Buttons & ovrTouch_A) {
+		//	resetGame();
+		//}
 
 		checkMoleculeIntersection();
 	}

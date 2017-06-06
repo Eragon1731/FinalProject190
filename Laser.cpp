@@ -60,11 +60,11 @@ void Laser::Render(glm::mat4 view, glm::mat4 proj) {
 	// Calculate the toWorld matrix for the model
 	glm::mat4 model;
 	model = glm::translate(model, position);
-	glm::quat orientation = glm::quat(rotation.w, rotation.x, rotation.y, rotation.z);
-	glm::mat4 rotationMatrix = glm::toMat4(orientation);
-	model *= rotationMatrix;
-	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
+	//glm::quat orientation = glm::quat(rotation.w, rotation.x, rotation.y, rotation.z);
+	//glm::mat4 rotationMatrix = glm::toMat4(orientation);
+	//model *= rotationMatrix;
+	//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
 
 	glUniformMatrix4fv(glGetUniformLocation(laserShader, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(laserShader, "view"), 1, GL_FALSE, &view[0][0]);

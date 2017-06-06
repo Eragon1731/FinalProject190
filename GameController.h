@@ -40,7 +40,7 @@ struct Ray {
 	float dist;
 };
 
-class Controller {
+class GameController {
 public:
 	glm::vec3 position;
 	glm::vec4 rotation;
@@ -50,8 +50,14 @@ public:
 	//ovrInputState inputState;
 	//ovrTouch btn1, btn2;
 	//ovrHandType hand;
+	Controller controller;
+	Frame frame;
+	HandList hands;
 
-	Controller();
+	Hand leftHand; 
+	Hand rightHand; 
+
+	GameController();
 	void loadS(); 
 	void Render(glm::mat4 view, glm::mat4 proj);
 
