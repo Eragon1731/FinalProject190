@@ -10,7 +10,7 @@
 
 class StereoCamera {
 
-public:
+public: 
 	StereoCamera(
 		float Convergence,
 		float EyeSeparation,
@@ -18,10 +18,10 @@ public:
 		float FOV,
 		float Near,
 		float Far
-	);
-	~StereoCamera();
-	glm::mat4 ApplyLeftFrustum();
-	glm::mat4 ApplyRightFrustum();
+	); 
+	~StereoCamera(); 
+	glm::mat4 ApplyLeftFrustum(); 
+	glm::mat4 ApplyRightFrustum(); 
 
 private:
 	float mConvergence;
@@ -29,6 +29,6 @@ private:
 	float mAspectRatio;
 	float mFOV;
 	float mNear;
-	float mFar;
+	float mFar; 
 
 };

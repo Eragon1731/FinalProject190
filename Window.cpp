@@ -1,11 +1,15 @@
 #include "Window.h"
-#include "GameScene.h"
 
-const char* window_title = "GLFW Starter Project"; 
+
+const char* window_title = "GLFW Starter Project";
+Cube * cube;
+//Model * factory; 
 GLint shaderProgram;
-StereoCamera * cam;
+StereoCamera * cam; 
 
 // On some systems you need to change this to the absolute path
+#define VERTEX_SHADER_PATH "../shader_1.vert"
+#define FRAGMENT_SHADER_PATH "../shader_1.frag"
 
 // Default camera parameters
 glm::vec3 cam_pos(0.0f, 0.0f, 20.0f);		// e  | Position of camera
@@ -17,29 +21,32 @@ int Window::height;
 
 glm::mat4 Window::P;
 glm::mat4 Window::V;
-//CO2Molecule GameScene::moleculeContainer;
 
-using namespace std;
-
-GameScene gameScene; 
-std::shared_ptr<GameScene> game;
+using namespace std; 
 
 void Window::initialize_objects()
 {
-	shaderProgram = LoadShaders("./shader_1.vert", "./shader_1.frag");
-	cam = new StereoCamera(2000.0f, 0.25f, 1.3333f, 45.0f, 0.001f, 10000.0f);
-	game = std::shared_ptr<GameScene>(new GameScene());
+	cam = new StereoCamera(2000.0f, 0.25f, 1.3333f, 45.0f, 0.001f, 10000.0f); 
+	cube = new Cube();
+	
+	vector<const GLchar *> faces; 
 
-	Model co2M("H:/FinalProject/LeapMotion/objects/co2/co2.obj");
-	Model o2M("H:/FinalProject/LeapMotion/objects/o2/o2.obj");
-	for (int i = 0; i < MAX_MOLECULES; i++) {
-		GameScene::moleculeContainer[i] = CO2Molecule(co2M, o2M, shaderProgram);
+	for (int i = 0; i < 6; i++) {
+		faces.push_back("H:/FinalProject/testerAna/textures/vr_test_pattern.ppm"); 
 	}
+
+
+	cube->loadCubemap(faces); 
+
+	// Load the shader program. Make sure you have the correct filepath up top
+	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
 void Window::clean_up()
 {
+	delete(cube);
+	//factory->Reset(); 
 	glDeleteProgram(shaderProgram);
 }
 
@@ -107,7 +114,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 void Window::idle_callback()
 {
 	// Call the update function the cube
-	
+	cube->update();
 
 }
 
@@ -118,19 +125,19 @@ void Window::display_callback(GLFWwindow* window)
 
 	// Use the shader of programID
 	glUseProgram(shaderProgram);
-
+	
 	//TESTER::ANAGLYPH
-	glm::mat4 leftProjection = cam->ApplyLeftFrustum();
-	glColorMask(true, false, false, false);
-	game->render(leftProjection, Window::V, shaderProgram);
+	glm::mat4 leftProjection = cam->ApplyLeftFrustum(); 
+	glColorMask(true, false, false, false); 
+	cube->draw(shaderProgram, leftProjection);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	glm::mat4 rightProjection = cam->ApplyRightFrustum();
+	glm::mat4 rightProjection = cam->ApplyRightFrustum(); 
 	glColorMask(false, false, true, false);
-	game->render(rightProjection, Window::V, shaderProgram);
+	cube->draw(shaderProgram, rightProjection);
 
-	glColorMask(true, true, true, true);
+	glColorMask(true, true, true, true); 
 	///////////////////////////////////////////
 
 	// Gets events, including input such as keyboard and mouse or window resizing
@@ -149,9 +156,6 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		{
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
-		}
-		else if (key == GLFW_KEY_R){
-			game->resetGame(); 
 		}
 	}
 }
