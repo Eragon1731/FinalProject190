@@ -1,73 +1,97 @@
+#include "StdAfx.h"
 #include "ServerGame.h"
 
-unsigned int ServerGame::client_id;
+unsigned int ServerGame::client_id; 
 
-ServerGame::ServerGame() {
+ServerGame::ServerGame(void)
+{
+    // id's to assign clients for our table
+    client_id = 0;
 
-	client_id = 0;
-
-	network = new ServerNetwork(); 
+    // set up the server network to listen 
+    network = new ServerNetwork(); 
 }
 
-void ServerGame::update() {
-
-	if (network->acceptNewClient(client_id)) {
-
-		printf("client %d had been connected to the server\n", client_id);
-		client_id++;
-	}
-	receiveFromClients(); 
+ServerGame::~ServerGame(void)
+{
 }
 
-void ServerGame::receiveFromClients() {
+void ServerGame::update()
+{
+    // get new clients
+   if(network->acceptNewClient(client_id))
+   {
+        printf("client %d has been connected to the server\n",client_id);
 
-	Packet packet; 
+        client_id++;
+   }
 
-	map<unsigned int, SOCKET>::iterator iter;
-
-	for (iter = network->sessions.begin(); iter != network->sessions.end(); iter++) {
-
-		int data_length = network->recieveData(iter->first, network_data);
-
-		if (data_length <= 0) {
-
-			//if no data recieved
-			continue; 
-		}
-		int i = 0;
-		while (i < (unsigned int)data_length) {
-
-			packet.deserialize(&(network_data[i]));
-			i += sizeof(Packet); 
-
-			switch (packet.packet_type)
-			{
-			case INIT_CONNECTION:
-				printf("server received init packet from client \n");
-				sendActionPackets(); 
-				break;
-			case ACTION_EVENT:
-			//	printf("server received action event packet from client\n");
-				//sendActionPackets(); 
-				break;
-			default:
-				printf("error in packet types\n");
-				break;
-			}
-		}
-
-	}
+   receiveFromClients();
 }
 
-void ServerGame::sendActionPackets() {
+void ServerGame::receiveFromClients()
+{
 
-	const unsigned int packet_size = sizeof(Packet);
-	char packet_data[packet_size];
+    Packet packet;
 
-	Packet packet;
-	packet.packet_type = ACTION_EVENT; 
+    // go through all clients
+    std::map<unsigned int, SOCKET>::iterator iter;
 
-	packet.serialize(packet_data);
+    for(iter = network->sessions.begin(); iter != network->sessions.end(); iter++)
+    {
+        int data_length = network->receiveData(iter->first, network_data);
 
-	network->sendToAll(packet_data, packet_size); 
+        if (data_length <= 0) 
+        {
+            //no data recieved
+            continue;
+        }
+
+        int i = 0;
+        while (i < (unsigned int)data_length) 
+        {
+            packet.deserialize(&(network_data[i]));
+            i += sizeof(Packet);
+
+            switch (packet.packet_type) {
+
+                case INIT_CONNECTION:
+
+                    printf("server received init packet from client\n");
+
+                    sendActionPackets();
+
+                    break;
+
+                case ACTION_EVENT:
+
+                    printf("server received action event packet from client\n");
+
+                    sendActionPackets();
+
+                    break;
+
+                default:
+
+                    printf("error in packet types\n");
+
+                    break;
+            }
+        }
+    }
+}
+
+
+void ServerGame::sendActionPackets()
+{
+    // send action packet
+    const unsigned int packet_size = sizeof(Packet);
+    char packet_data[packet_size];
+
+    Packet packet;
+    packet.packet_type = ACTION_EVENT;
+
+    packet.serialize(packet_data);
+
+    network->sendToAll(packet_data,packet_size);
 }
