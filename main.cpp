@@ -17,7 +17,7 @@ limitations under the License.
 
 ************************************************************************************/
 
-
+#include "ClientGame.h"
 #include <iostream>
 #include <memory>
 #include <string>
@@ -26,6 +26,8 @@ limitations under the License.
 #include <Windows.h>
 
 #include "GameScene.h"
+//#include "NetworkData.h"
+
 
 #define __STDC_FORMAT_MACROS 1
 
@@ -630,6 +632,7 @@ protected:
 
 class ExampleApp : public RiftApp {
 	std::shared_ptr<GameScene> cubeScene;
+	ClientGame * client1; 
 
 public:
 	ExampleApp() { }
@@ -680,10 +683,12 @@ protected:
 		glEnable(GL_DEPTH_TEST);
 		ovr_RecenterTrackingOrigin(_session);
 		cubeScene = std::shared_ptr<GameScene>(new GameScene());
+		client1 = new ClientGame(); 
 	}
 
 	void shutdownGl() override {
 		cubeScene.reset();
+		delete(client1); 
 	}
 
 	void renderScene(const glm::mat4 & projection, const glm::mat4 & headPose) override {
@@ -698,6 +703,9 @@ protected:
 		cubeScene->hmdData.rightControllerOrientation = rightControllerOrientation();
 		cubeScene->hmdData.inputState = inputState;
 
+		////
+		client1->clientMove(0, projection, headPose); 
+		//////
 		cubeScene->render(projection, glm::inverse(headPose));
 	}
 };

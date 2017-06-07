@@ -58,7 +58,7 @@ private:
 	/* Data */
 	Laser laser;
 	Model controllerModel;
-	GLchar* pathToController = "H:/FinalProject/MinimalVR-master/objects/factory4/factory4.obj";
+	GLchar* pathToController = "H:/FinalProject/MinimalVR-master/objects/cube.obj";
 	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
 	GLchar* fragShaderPath   = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag";
 	GLint controllerShader;

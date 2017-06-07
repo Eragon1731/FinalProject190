@@ -21,7 +21,7 @@
 #include <OVR_CAPI.h>
 #include <OVR_CAPI_GL.h>
 
-#define MAX_MOLECULES 100
+#define MAX_MOLECULES 50
 
 #define FAIL(X) throw std::runtime_error(X)
 
@@ -71,6 +71,13 @@ public:
 		glm::vec4 rightControllerOrientation;
 		ovrInputState inputState;
 	} hmdData;
+
+	///////////
+	struct gameData {
+
+
+	} gameData;
+	/////////
 
 	GameScene() {
 		GLint facS = LoadShaders("H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert", "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag");
@@ -238,7 +245,7 @@ public:
 			}
 		}
 
-		// Controlls for the left controller
+		// Controls for the left controller
 		leftController.inputState = hmdData.inputState;
 		leftController.btn1 = ovrTouch_X;
 		leftController.btn2 = ovrTouch_Y;
