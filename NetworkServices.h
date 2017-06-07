@@ -1,10 +1,11 @@
 #pragma once
-#include <WinSock2.h>
+#include <winsock2.h>
 #include <Windows.h>
 
-class NetworkServices {
-
+class NetworkServices
+{
 public:
 	static int sendMessage(SOCKET curSocket, char * message, int messageSize);
-	static int recieveMessage(SOCKET curSocket, char * buffer, int bufferSize);
+	static int receiveMessage(SOCKET curSocket, char * buffer, int bufSize);
 };
+
