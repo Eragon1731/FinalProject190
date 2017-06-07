@@ -18,8 +18,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-//#include <OVR_CAPI.h>
-//#include <OVR_CAPI_GL.h>
 
 #define MAX_MOLECULES 100
 
@@ -42,6 +40,7 @@ using glm::quat;
 
 using namespace glm;
 
+
 // a class for encapsulating building and rendering an RGB cube
 class GameScene {
 
@@ -49,7 +48,7 @@ private:
 
 	Factory factoryModel;
 	
-	CO2Molecule moleculeContainer[MAX_MOLECULES];
+
 	
 	GameController leftController;
 	GameController rightController;
@@ -57,10 +56,11 @@ private:
 	int lastUsedMolecule = 5;
 	int tick = 0;
 	int activeMolecules = 5;
+
 	int gameState = 0;
 
 public:
-
+	static CO2Molecule moleculeContainer[MAX_MOLECULES];
 	struct hmdData {
 		glm::vec3 hmdPos;
 		glm::vec3 leftControllerPos;
@@ -71,13 +71,12 @@ public:
 	} hmdData;
 
 	GameScene() {
-		GLint facS = LoadShaders("H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert", "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag");
 
-		Model co2M("H:/FinalProject/MinimalVR-master/objects/co2/co2.obj");
-		Model o2M("H:/FinalProject/MinimalVR-master/objects/o2/o2.obj");
-		for (int i = 0; i < MAX_MOLECULES; i++) {
-			moleculeContainer[i] = CO2Molecule(co2M, o2M, facS);
-		}
+		//Model co2M("H:/FinalProject/LeapMotion/objects/co2/co2.obj");
+		//Model o2M("H:/FinalProject/LeapMotion/objects/o2/o2.obj");
+		//for (int i = 0; i < MAX_MOLECULES; i++) {
+		//	moleculeContainer[i] = CO2Molecule(co2M, o2M, facS);
+		//}
 
 		leftController.loadS(); 
 		rightController.loadS(); 
@@ -183,7 +182,7 @@ public:
 		gameState = 0;
 	}
 
-	void render(const mat4 & projection, const mat4 & modelview) {
+	void render(const mat4 & projection, const mat4 & modelview, GLint shaderProgram) {
 
 		factoryModel.Render(modelview, projection);
 		
@@ -228,32 +227,6 @@ public:
 				moleculeContainer[i].Render(modelview, projection);
 			}
 		}
-
-		// Controlls for the left controller
-		//leftController.inputState = hmdData.inputState;
-		//leftController.btn1 = ovrTouch_X;
-		//leftController.btn2 = ovrTouch_Y;
-		//leftController.hand = ovrHand_Left;
-
-		leftController.position = hmdData.leftControllerPos;
-		leftController.rotation = hmdData.leftControllerOrientation;
-		leftController.Render(modelview, projection);
-
-		// Controlls for the right controller
-		//rightController.inputState = hmdData.inputState;
-		//rightController.btn1 = ovrTouch_A;
-		//rightController.btn2 = ovrTouch_B;
-		//rightController.hand = ovrHand_Right;
-
-		rightController.position = hmdData.rightControllerPos;
-		rightController.rotation = hmdData.rightControllerOrientation;
-		rightController.Render(modelview, projection);
-
-		// Reset the game
-		//if (gameState != 0 && hmdData.inputState.Buttons & ovrTouch_A) {
-		//	resetGame();
-		//}
-
 		checkMoleculeIntersection();
 	}
 };

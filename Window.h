@@ -14,8 +14,8 @@
 //#include "Cube.h"
 #include "shader.h"
 #include "StereoCamera.h"
-
 #include "LEAP_SDK\include\Leap.h"
+#include "LEAP_SDK\include\LeapMath.h"
 
 using namespace Leap; 
 class Window

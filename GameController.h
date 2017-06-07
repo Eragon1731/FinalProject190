@@ -27,12 +27,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <GL/glew.h>
 
-//#include <OVR_CAPI.h>
-//#include <OVR_CAPI_GL.h>
-//
 #include "LEAP_SDK\include\Leap.h"
-
-using namespace Leap; 
+using namespace Leap;
 
 struct Ray {
 	glm::vec3 origin;
@@ -46,17 +42,6 @@ public:
 	glm::vec4 rotation;
 	glm::vec3 scale;
 
-	// Controlls for this controller
-	//ovrInputState inputState;
-	//ovrTouch btn1, btn2;
-	//ovrHandType hand;
-	Controller controller;
-	Frame frame;
-	HandList hands;
-
-	Hand leftHand; 
-	Hand rightHand; 
-
 	GameController();
 	void loadS(); 
 	void Render(glm::mat4 view, glm::mat4 proj);
@@ -64,9 +49,17 @@ public:
 	glm::vec3 GetColor();
 
 	Ray ray;
+
+	Controller control;
+	Frame frame; 
+	HandList hands;
+	Hand firsthand;
+	Hand leftmost;
+	Hand rightmost; 
+
 private:
 	/* Data */
-	Laser laser;
+	//Laser laser;
 	Model controllerModel;
 	GLchar* pathToController = "H:/FinalProject/MinimalVR-master/objects/cube.obj";
 	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
