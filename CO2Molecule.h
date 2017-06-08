@@ -38,7 +38,7 @@ public:
 	glm::vec3 scale;
 
 	glm::vec3 random_vector;
-	glm::vec3 spawn_point = glm::vec3(0.0f, -0.75f, -1.5f);
+	glm::vec3 spawn_point = glm::vec3(0.0f, 0.0f, 0.0f);//glm::vec3(0.0f, -0.75f, -1.5f);
 
 	glm::mat4 model;
 private:
@@ -48,8 +48,8 @@ private:
 	Model o2Model;
 
 	GLint co2Shader; 
-	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
-	GLchar* fragShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag";
+	GLchar* vertexShaderPath = "./shader_1.vert";
+	GLchar* fragShaderPath = "./shader_1.frag";
 
 	float y_move = (float) (rand() % 100 - 50);
 	float x_move = (float) (rand() % 100 - 50);

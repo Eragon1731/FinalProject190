@@ -32,9 +32,9 @@ public:
 private:
 	/* Data */
 	Model factoryModel;
-	GLchar* pathToFactory = "H:/FinalProject/MinimalVR-master/objects/factory1/factory1.obj";
-	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
-	GLchar* fragShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag";
+	GLchar* pathToFactory = "H:/FinalProject/LeapMotion/objects/factory1/factory1.obj";
+	GLchar* vertexShaderPath = "./shader_1.vert";
+	GLchar* fragShaderPath = "./shader_1.frag";
 	GLint factoryShader;
 
 	glm::vec3 position;

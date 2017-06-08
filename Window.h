@@ -32,6 +32,9 @@ public:
 	static void idle_callback();
 	static void display_callback(GLFWwindow*);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+	static void resetGame(); 
+	static void renderMolecules(glm::mat4 projection, glm::mat4 view); 
 };
 
 #endif

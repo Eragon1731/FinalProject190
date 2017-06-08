@@ -38,18 +38,20 @@ struct Ray {
 
 class GameController {
 public:
+
+	glm::mat4 model; 
 	glm::vec3 position;
 	glm::vec4 rotation;
 	glm::vec3 scale;
 
 	GameController();
 	void loadS(); 
-	void Render(glm::mat4 view, glm::mat4 proj);
+	void Render(glm::mat4 view, glm::mat4 projection);
 
 	glm::vec3 GetColor();
 
 	Ray ray;
-
+	Laser laser; 
 	Controller control;
 	Frame frame; 
 	HandList hands;
@@ -57,13 +59,15 @@ public:
 	Hand leftmost;
 	Hand rightmost; 
 
+	bool renderLaser = false; 
+
 private:
 	/* Data */
 	//Laser laser;
 	Model controllerModel;
-	GLchar* pathToController = "H:/FinalProject/MinimalVR-master/objects/cube.obj";
-	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
-	GLchar* fragShaderPath   = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag";
+	GLchar* pathToController = "H:/FinalProject/LeapMotion/objects/cube.obj";
+	GLchar* vertexShaderPath = "./shader_1.vert";
+	GLchar* fragShaderPath   = "./shader_1.frag";
 	GLint controllerShader;
 
 
