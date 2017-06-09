@@ -8,6 +8,10 @@
 
 Controller::Controller() {
 
+	//// Create the shader to use for the controller
+	//GLint conS = LoadShaders(vertexShaderPath, fragShaderPath);
+	//controllerShader = conS;
+
 	// Creates the model for the controller
 	Model conM (pathToController);
 	controllerModel = conM;
@@ -63,7 +67,7 @@ void Controller::Render(glm::mat4 view, glm::mat4 proj) {
 		laser.SetRed();
 	}
 	else {
-		//laser.SetGreen();
+		laser.SetGreen();
 	}
 
 	// Render the laser

@@ -21,7 +21,7 @@
 #include <OVR_CAPI.h>
 #include <OVR_CAPI_GL.h>
 
-#define MAX_MOLECULES 50
+#define MAX_MOLECULES 100
 
 #define FAIL(X) throw std::runtime_error(X)
 
@@ -72,15 +72,8 @@ public:
 		ovrInputState inputState;
 	} hmdData;
 
-	///////////
-	struct gameData {
-
-
-	} gameData;
-	/////////
-
 	GameScene() {
-		GLint facS = LoadShaders("H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert", "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag");
+		GLint facS = LoadShaders("./shader_1.vert", "./shader_1.frag");
 
 		Model co2M("H:/FinalProject/MinimalVR-master/objects/co2/co2.obj");
 		Model o2M("H:/FinalProject/MinimalVR-master/objects/o2/o2.obj");
@@ -245,7 +238,7 @@ public:
 			}
 		}
 
-		// Controls for the left controller
+		// Controlls for the left controller
 		leftController.inputState = hmdData.inputState;
 		leftController.btn1 = ovrTouch_X;
 		leftController.btn2 = ovrTouch_Y;

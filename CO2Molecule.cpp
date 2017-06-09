@@ -5,6 +5,7 @@
 #include "CO2Molecule.h"
 
 #define BOUND 1.2f
+//#define _ITERATOR_DEBUG_LEVEL 0
 
 /////////////////////////////////////////////////////
 
