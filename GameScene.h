@@ -1,6 +1,7 @@
 /////////////////////
 // GameScene.h
 /////////////////////
+#include "rpc\client.h"
 #include <iostream>
 #include <memory>
 #include <exception>
@@ -21,7 +22,7 @@
 #include <OVR_CAPI.h>
 #include <OVR_CAPI_GL.h>
 
-#define MAX_MOLECULES 100
+#define MAX_MOLECULES 50
 
 #define FAIL(X) throw std::runtime_error(X)
 
@@ -72,10 +73,15 @@ public:
 		ovrInputState inputState;
 	} hmdData;
 
+	//client server data store
+	rpc::client * client;
+	int clientID;
+	int moleculeID; 
+
 	GameScene() {
 		GLint facS = LoadShaders("./shader_1.vert", "./shader_1.frag");
 
-		Model co2M("H:/FinalProject/MinimalVR-master/objects/co2/co2.obj");
+		Model co2M("../objects/casque+loki.obj");
 		Model o2M("H:/FinalProject/MinimalVR-master/objects/o2/o2.obj");
 		for (int i = 0; i < MAX_MOLECULES; i++) {
 			moleculeContainer[i] = CO2Molecule(co2M, o2M, facS);
@@ -83,16 +89,14 @@ public:
 
 		leftController.loadS(); 
 		rightController.loadS(); 
+
+		client = new rpc::client("localhost", 8080);
+		//assign id
+		clientID = client->call("assignID", 0).as<int>();
+		cerr << clientID << endl;
 	}
 
 	float intersection(glm::vec3 rayOrigin, glm::vec3 rayDir, glm::vec3 moleculePos, float radius) {
-
-		/*glm::vec3 w = rayOrigin - moleculePos;
-		float A = glm::dot(rayDir, rayDir);
-		float B = 2 * glm::dot(w, rayDir);
-		float C = glm::dot(w, w) - (radius*radius);
-		float D = B*B - 4.0f*A*C;
-		return D >= 0.0f ? (-B - sqrt(D)) / (2.0f*A) : std::numeric_limits<float>::infinity();*/
 
 		glm::vec3 dir = rayDir;
 		glm::vec3 eye = rayOrigin;
@@ -170,9 +174,13 @@ public:
 					moleculeContainer[i].ChangeToO2();
 					moleculeContainer[i].isCO2 = false;
 					activeMolecules--;
+
+					//tracking moleculeID
+					moleculeID = i; 
 				}
 			}
 		}
+		client->call("moleculeShot", 0,moleculeID); 
 	}
 
 	void resetGame() {
@@ -190,12 +198,14 @@ public:
 		lastUsedMolecule = 5;
 		tick = 0;
 		gameState = 0;
+
+		//delete(client);
 	}
 
 	void render(const mat4 & projection, const mat4 & modelview) {
 
 		factoryModel.Render(modelview, projection);
-		
+	
 		// Set a new molecule to active every second (oculus should have 90 fps)
 
 		if (tick == 200) {
@@ -248,6 +258,13 @@ public:
 		leftController.rotation = hmdData.leftControllerOrientation;
 		leftController.Render(modelview, projection);
 
+		////sending position of left 
+		//sending the projection
+		client->call("clientPosition", 0, leftController.model[0].x, leftController.model[0].y, leftController.model[0].z, leftController.model[0].w);//.as<float>();
+		client->call("clientPosition", 0, leftController.model[1].x, leftController.model[1].y, leftController.model[1].z, leftController.model[1].w);//.as<float>();
+		client->call("clientPosition", 0, leftController.model[2].x, leftController.model[2].y, leftController.model[2].z, leftController.model[2].w);//.as<float>();
+		client->call("clientPosition", 0, leftController.model[3].x, leftController.model[3].y, leftController.model[3].z, leftController.model[3].w);//.as<float>();
+
 		// Controlls for the right controller
 		rightController.inputState = hmdData.inputState;
 		rightController.btn1 = ovrTouch_A;
@@ -258,11 +275,25 @@ public:
 		rightController.rotation = hmdData.rightControllerOrientation;
 		rightController.Render(modelview, projection);
 
+		//setting up projection for another player
+		//float tempProj[16]; 
+		//for (int i = 0;i < 15;i++) {
+		//	float tempFloat = client->call("recievePosition", 0, i).as<float>(); 
+		//	tempProj[i] = tempFloat; 
+		//}
+
+		//glm::mat4 otherPosition;
+		//otherPosition = glm::make_mat4(tempProj); 
+
+
 		// Reset the game
 		if (gameState != 0 && hmdData.inputState.Buttons & ovrTouch_A) {
+			//client->call("quitGame", 0).as<int>();
 			resetGame();
 		}
 
 		checkMoleculeIntersection();
+
 	}
+
 };

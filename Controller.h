@@ -42,6 +42,8 @@ public:
 	glm::vec4 rotation;
 	glm::vec3 scale;
 
+	//// 
+	glm::mat4 model;
 	// Controlls for this controller
 	ovrInputState inputState;
 	ovrTouch btn1, btn2;
@@ -58,7 +60,7 @@ private:
 	/* Data */
 	Laser laser;
 	Model controllerModel;
-	GLchar* pathToController = "H:/FinalProject/MinimalVR-master/objects/factory4/factory4.obj";
+	GLchar* pathToController = "../objects/MJolnir.obj";
 	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
 	GLchar* fragShaderPath   = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag";
 	GLint controllerShader;

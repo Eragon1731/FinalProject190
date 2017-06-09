@@ -40,7 +40,7 @@ void Controller::Render(glm::mat4 view, glm::mat4 proj) {
 	glUseProgram(controllerShader);
 
 	// Calculate the toWorld matrix for the model
-	glm::mat4 model;
+	model = glm::mat4(1.0f); 
 	model = glm::translate(model, position);
 
 	glm::quat orientation = glm::quat(rotation.w, rotation.x, rotation.y, rotation.z);
@@ -48,7 +48,7 @@ void Controller::Render(glm::mat4 view, glm::mat4 proj) {
 	model *= rotationMatrix;
 	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-	model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
+	model = glm::translate(model, glm::vec3(-0.35f, -0.50f, 0.0f));
 	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "view"), 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "projection"), 1, GL_FALSE, &proj[0][0]);
