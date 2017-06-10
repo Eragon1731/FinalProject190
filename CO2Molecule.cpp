@@ -4,7 +4,7 @@
 
 #include "CO2Molecule.h"
 
-#define BOUND 20.0f
+#define BOUND 15.0f
 
 /////////////////////////////////////////////////////
 

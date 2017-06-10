@@ -75,14 +75,16 @@ void GameController::Render(glm::mat4 view, glm::mat4 proj) {
 		laser.SetGreen();
 
 		// Render the laser
-		laser.position = position;
-		laser.rotation = rotation;
+		laser.position = tempPose;
+		laser.rotation = glm::vec4(tempNormal, 1.0f);
 		laser.Render(view, proj);
 
 	//	Calculates the ray equation
 		ray.origin = position;
 		ray.dir = glm::normalize(tempPose * glm::vec3(0, 0, -1));
 		ray.dist = 75.0f; //magic number - same as laserDist in Laser.h
+
+		cout << "render laser" << endl; 
 	}
 }
 

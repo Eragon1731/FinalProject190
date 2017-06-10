@@ -54,8 +54,8 @@ void Laser::Render(glm::mat4 view, glm::mat4 proj) {
 
 	glUseProgram(laserShader); 
 
-	GLint objectColorLoc = glGetUniformLocation(laserShader, "objectColor");
-	glUniform3f(objectColorLoc, color.x, color.y, color.z);
+//	GLint objectColorLoc = glGetUniformLocation(laserShader, "objectColor");
+//	glUniform3f(objectColorLoc, color.x, color.y, color.z);
 
 	// Calculate the toWorld matrix for the model
 	glm::mat4 model;

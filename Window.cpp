@@ -1,7 +1,9 @@
 #include "Window.h"
+#include "Observer.h"
 #include "Factory.h"
 #include "GameController.h"
 #include "CO2Molecule.h"
+
 
 
 const char* window_title = "GLFW Starter Project"; 
@@ -20,13 +22,12 @@ int Window::height;
 
 glm::mat4 Window::P;
 glm::mat4 Window::V;
-//CO2Molecule GameScene::moleculeContainer;
 
 using namespace std;
 using namespace glm; 
 
 Factory * factoryModel;
-GameController * leftController;
+GameController * controller;
 
 int lastUsedMolecule = 5;
 int tick = 0;
@@ -37,16 +38,17 @@ int gameState = 0;
 rpc::client * client1; 
 int clientID;
 int moleculeID;
+bool resetFlag = false;
 
-GameController * otherController; 
-
+///////
+Observer * otherController; 
 CO2Molecule * moleculeContainer[50]; 
 
 void Window::initialize_objects()
 {
 	factoryModel = new Factory(); 
-	leftController = new GameController(); 
-	otherController = new GameController(); 
+	controller = new GameController();
+	otherController = new Observer(); 
 
 	shaderProgram = LoadShaders("./shader_1.vert", "./shader_1.frag");
 	cam = new StereoCamera(2000.0f, 0.25f, 1.3333f, 45.0f, 0.001f, 10000.0f);
@@ -130,27 +132,27 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 	}
 }
 
-//sending controller positions to Server
+//Server to client logic
 void Window::idle_callback()
 {
-	client1->call("clientPosition", 0, leftController->toWorld[0].x, leftController->toWorld[0].y, leftController->toWorld[0].z, leftController->toWorld[0].w);
-	client1->call("clientPosition", 0, leftController->toWorld[1].x, leftController->toWorld[1].y, leftController->toWorld[1].z, leftController->toWorld[1].w);
-	client1->call("clientPosition", 0, leftController->toWorld[2].x, leftController->toWorld[2].y, leftController->toWorld[2].z, leftController->toWorld[2].w);
-	client1->call("clientPosition", 0, leftController->toWorld[3].x, leftController->toWorld[3].y, leftController->toWorld[3].z, leftController->toWorld[3].w);
+	//checking if reset
+	if (client1->call("gameReset", 1).as<bool>()) {
+		Window::resetGame(); 
+	}
 
-	//recieve position from other client
-	//CREATE SEPARATE CLASS for other player
-	//float tempProj[16];
-	//for (int i = 0;i < 15;i++) {
-	//	float tempFloat = client1->call("recievePosition", 0, i).as<float>();
-	//	tempProj[i] = tempFloat;
-	//}
+	//setting and retrieving position of observer
+	client1->call("clientPosition", 1, controller->toWorld[3].x, controller->toWorld[3].y, controller->toWorld[3].z);
+	float tempProj[3];
+	for (int count = 0; count < 3; count++) {
+		float tempFloat = client1->call("recievePosition", 1, count).as<float>();
+		tempProj[count] = tempFloat * 10.0f;
+		cout << "count: "<< count<< endl;
+		cout << "tempProj[i]: " << tempProj[count] << endl;
+	}
 
-	//glm::mat4 otherPosition;
-	//otherPosition = glm::make_mat4(tempProj);
-
-	//otherController->toWorld = otherPosition; 
-
+	glm::vec3 otherPose;
+	otherPose = glm::make_vec3(tempProj);
+	otherController->otherPosition = otherPose;
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -166,9 +168,13 @@ void Window::display_callback(GLFWwindow* window)
 	glColorMask(true, false, false, false);
 
 	factoryModel->Render(Window::V, leftProjection); 
-	leftController->Render(Window::V, leftProjection); 
+	controller->Render(Window::V, leftProjection);
 	
+	//molecules
 	Window::renderMolecules(leftProjection, Window::V);
+
+	//observer from other game
+	otherController->Render(Window::V, leftProjection); 
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -176,9 +182,13 @@ void Window::display_callback(GLFWwindow* window)
 	glColorMask(false, false, true, false);
 
 	factoryModel->Render(Window::V, rightProjection); 
-	leftController->Render(Window::V, rightProjection); 
+	controller->Render(Window::V, rightProjection);
 
+	//molecules
 	Window::renderMolecules(rightProjection, Window::V);
+
+	//observer from other game
+	otherController->Render(Window::V, rightProjection);
 
 	glColorMask(true, true, true, true);
 
@@ -199,14 +209,17 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
-		else if (key == GLFW_KEY_R){
-			Window::resetGame(); 
+		else if (key == GLFW_KEY_R) {
+			client1->call("setGameReset", 1, true);
+			Window::resetGame();
 		}
 		//used to fire laser
 		else if (key == GLFW_KEY_SPACE) {
-			leftController->renderLaser = true;
+			controller->renderLaser = true;
 		}
-		leftController->renderLaser = false; 
+	}
+	else {
+		controller->renderLaser = false;
 	}
 }
 
@@ -225,6 +238,9 @@ void Window::resetGame() {
 	lastUsedMolecule = 5;
 	tick = 0;
 	gameState = 0;
+	
+	//set back 
+	client1->call("setGameReset", 1, false);
 }
 
 void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
@@ -272,9 +288,93 @@ void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
 	}
 
 
-	//checkMoleculeIntersection();
-	//if hit with hand 
-	//if hit "render laser"
-	//if other client hit molecule
+	checkMoleculeIntersection();
 }
+
+void Window::checkMoleculeIntersection() {
+
+	glm::vec3 red(1, 0, 0);
+	glm::vec3 green(0, 0, 1);
+
+	glm::vec3 rayOrigin;
+	glm::vec3 rayDir;
+	float rayDist;
+	glm::vec3 moleculePos;
+	float radius = 0.1f;
+
+	float intersectionDist;
+
+	// Cycle through all our molecules
+	for (int i = 0; i < 50; ++i) {
+		if (moleculeContainer[i]->active) {
+
+			int numSelecting = 0;
+
+			moleculePos = moleculeContainer[i]->position;
+
+			// left controller ray
+			rayOrigin = controller->ray.origin;
+			rayDir = controller->ray.dir;
+			rayDist = controller->ray.dist;
+			intersectionDist = Window::intersection(rayOrigin, rayDir, moleculePos, radius);
+			if (intersectionDist < rayDist && intersectionDist > 0.0f) {
+				numSelecting++;
+			}
+
+			if (numSelecting == 1 && moleculeContainer[i]->isCO2 && gameState == 0) {
+				moleculeContainer[i]->ChangeToO2();
+				moleculeContainer[i]->isCO2 = false;
+				activeMolecules--;
+
+				//store molecule shot
+				client1->call("setMoleculeShot", 0, i);
+			}
+
+			//check if opponent shot any
+			int isShot = client1->call("moleculeShot", 0).as<int>();
+
+			if (gameState == 0 && moleculeContainer[isShot]->isCO2 && numSelecting == 1) {
+				moleculeContainer[isShot]->ChangeToO2();
+				moleculeContainer[isShot]->isCO2 = false;
+				activeMolecules--;
+			}
+			////////////////////////////////
+		}
+	}
+}
+
+float Window::intersection(glm::vec3 rayOrigin, glm::vec3 rayDir, glm::vec3 moleculePos, float radius) {
+
+	glm::vec3 dir = rayDir;
+	glm::vec3 eye = rayOrigin;
+	glm::vec3 center = moleculePos;
+
+
+	float dis = pow(dot(dir, eye - center), 2) - dot(dir, dir) * (dot(eye - center, eye - center) - pow(radius, 2));
+
+	if (dis >= 0) {
+		float t1 = glm::dot(-dir, eye - center) + glm::sqrt(dis) / glm::dot(dir, dir);
+		float t2 = glm::dot(-dir, eye - center) - glm::sqrt(dis) / glm::dot(dir, dir);
+
+		if (t1 == t2) {
+			return t1;
+		}
+
+		// If this point is reached, there are two intersection points. Pick the
+		// smaller t value, because it means it's the one that's closer to the camera.
+		// However, make sure the t value isn't negative
+		else if (t1 < 0 && t2 < 0) {
+			return std::numeric_limits<float>::infinity();
+		}
+		else if (t1 < 0) return t2;
+		else if (t2 < 0) return t1;
+
+		float closer = t1 < t2 ? t1 : t2;
+		return closer;
+
+	}
+
+	return std::numeric_limits<float>::infinity();
+}
+
 

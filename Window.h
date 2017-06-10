@@ -37,6 +37,7 @@ public:
 	static void resetGame(); 
 	static void renderMolecules(glm::mat4 projection, glm::mat4 view); 
 	static void checkMoleculeIntersection(); 
+	static float intersection(glm::vec3 rayOrigin, glm::vec3 rayDir, glm::vec3 moleculePos, float radius);
 };
 
 #endif

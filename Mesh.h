@@ -10,9 +10,6 @@
 #include <map>
 #include <math.h>
 
-
-
-
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc\matrix_transform.hpp>
@@ -44,8 +41,8 @@ public:
 	vector<GLuint> indices;
 	vector <Texture> textures; 
 
-	Mesh(vector <Vertex> vertices, vector <GLuint> indices);//, vector <Texture> textures);
-	void draw(GLint shader, GLuint textureID);
+	Mesh(vector <Vertex> vertices, vector <GLuint> indices);
+	void draw(GLint shader);
 
 	glm::vec3 ambient, diffuse, specular;
 	GLfloat shiny; 

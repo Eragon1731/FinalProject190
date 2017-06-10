@@ -31,13 +31,20 @@ public:
 	~Observer();
 	glm::mat4 observerWorld;
 
+	void Render(glm::mat4 view, glm::mat4 proj);
+	glm::vec3 otherPosition; 
 
 private:
 	
+	void loadS();
+
+
 	Model observerModel;
 	GLchar* pathToObserver = "../objects/factory1/factory1.obj";
 	GLchar* vertexShaderPath = "./shader_1.vert";
 	GLchar* fragShaderPath = "./shader_1.frag";
 	GLint observerShader;
+
+
 
 };

@@ -25,7 +25,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <GL/glew.h>
 
-#include "Leap.h"
+#include "LEAP_SDK\include\Leap.h"
 using namespace Leap; 
 class Factory {
 public:
