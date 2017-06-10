@@ -33,7 +33,12 @@ int tick = 0;
 int activeMolecules = 5;
 int gameState = 0;
 
+//SERVER CLIENT DATA
 rpc::client * client1; 
+int clientID;
+int moleculeID;
+
+GameController * otherController; 
 
 CO2Molecule * moleculeContainer[50]; 
 
@@ -41,6 +46,7 @@ void Window::initialize_objects()
 {
 	factoryModel = new Factory(); 
 	leftController = new GameController(); 
+	otherController = new GameController(); 
 
 	shaderProgram = LoadShaders("./shader_1.vert", "./shader_1.frag");
 	cam = new StereoCamera(2000.0f, 0.25f, 1.3333f, 45.0f, 0.001f, 10000.0f);
@@ -50,6 +56,11 @@ void Window::initialize_objects()
 	for (int i = 0; i < 50; i++) {
 		moleculeContainer[i] = new CO2Molecule(co2M, o2M, shaderProgram);
 	}
+
+	
+	//setting up server client
+	client1 = new rpc::client("localhost", 8080); 
+	clientID = client1->call("assignID", 1).as<int>(); 
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -119,10 +130,26 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 	}
 }
 
+//sending controller positions to Server
 void Window::idle_callback()
 {
-	// Call the update function the cube
-	
+	client1->call("clientPosition", 0, leftController->toWorld[0].x, leftController->toWorld[0].y, leftController->toWorld[0].z, leftController->toWorld[0].w);
+	client1->call("clientPosition", 0, leftController->toWorld[1].x, leftController->toWorld[1].y, leftController->toWorld[1].z, leftController->toWorld[1].w);
+	client1->call("clientPosition", 0, leftController->toWorld[2].x, leftController->toWorld[2].y, leftController->toWorld[2].z, leftController->toWorld[2].w);
+	client1->call("clientPosition", 0, leftController->toWorld[3].x, leftController->toWorld[3].y, leftController->toWorld[3].z, leftController->toWorld[3].w);
+
+	//recieve position from other client
+	//CREATE SEPARATE CLASS for other player
+	//float tempProj[16];
+	//for (int i = 0;i < 15;i++) {
+	//	float tempFloat = client1->call("recievePosition", 0, i).as<float>();
+	//	tempProj[i] = tempFloat;
+	//}
+
+	//glm::mat4 otherPosition;
+	//otherPosition = glm::make_mat4(tempProj);
+
+	//otherController->toWorld = otherPosition; 
 
 }
 
@@ -150,7 +177,6 @@ void Window::display_callback(GLFWwindow* window)
 	leftController->Render(Window::V, rightProjection); 
 
 	glColorMask(true, true, true, true);
-	///////////////////////////////////////////
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
@@ -172,6 +198,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		else if (key == GLFW_KEY_R){
 			Window::resetGame(); 
 		}
+		//used to fire laser
 		else if (key == GLFW_KEY_SPACE) {
 			leftController->renderLaser = true;
 		}
@@ -243,5 +270,7 @@ void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
 	//if hit with hand 
 	//if hit "render laser"
 
+
+	//if other client hit molecule
 }
 
