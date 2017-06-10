@@ -59,7 +59,6 @@ private:
 	int lastUsedMolecule = 5;
 	int tick = 0;
 	int activeMolecules = 5;
-
 	int gameState = 0;
 
 public:
@@ -128,7 +127,6 @@ public:
 		}
 
 		return std::numeric_limits<float>::infinity();
-
 	}
 
 	void checkMoleculeIntersection() {
@@ -175,12 +173,22 @@ public:
 					moleculeContainer[i].isCO2 = false;
 					activeMolecules--;
 
-					//tracking moleculeID
-					moleculeID = i; 
+					//store molecule shot
+					client->call("setMoleculeShot", 0, i);
 				}
+
+				//check if opponent shot any
+				int isShot = client->call("moleculeShot", 0).as<int>();
+
+				if (gameState ==0 && moleculeContainer[isShot].isCO2 && numSelecting == 2) {
+					moleculeContainer[isShot].ChangeToO2();
+					moleculeContainer[isShot].isCO2 = false;
+					activeMolecules--;
+				}
+				////////////////////////////////
 			}
 		}
-		client->call("moleculeShot", 0,moleculeID); 
+
 	}
 
 	void resetGame() {
@@ -199,7 +207,7 @@ public:
 		tick = 0;
 		gameState = 0;
 
-		//delete(client);
+		client->call("setGameReset", 0, false);
 	}
 
 	void render(const mat4 & projection, const mat4 & modelview) {
@@ -229,11 +237,12 @@ public:
 
 			glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 			gameState = 2;
+			
 		}
 		else if (activeMolecules <= 0 && gameState == 0) {
 			// win!
-			gameState = 1;
 			glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
+			gameState = 1;
 		}
 
 		// Render initial active molecules
@@ -259,11 +268,8 @@ public:
 		leftController.Render(modelview, projection);
 
 		////sending position of left 
-		//sending the projection
-		client->call("clientPosition", 0, leftController.model[0].x, leftController.model[0].y, leftController.model[0].z, leftController.model[0].w);//.as<float>();
-		client->call("clientPosition", 0, leftController.model[1].x, leftController.model[1].y, leftController.model[1].z, leftController.model[1].w);//.as<float>();
-		client->call("clientPosition", 0, leftController.model[2].x, leftController.model[2].y, leftController.model[2].z, leftController.model[2].w);//.as<float>();
-		client->call("clientPosition", 0, leftController.model[3].x, leftController.model[3].y, leftController.model[3].z, leftController.model[3].w);//.as<float>();
+		//sending the position vector
+		client->call("clientPosition", 0, leftController.position.x, leftController.position.y, leftController.position.z);
 
 		// Controlls for the right controller
 		rightController.inputState = hmdData.inputState;
@@ -276,20 +282,25 @@ public:
 		rightController.Render(modelview, projection);
 
 		//setting up projection for another player
-		//float tempProj[16]; 
-		//for (int i = 0;i < 15;i++) {
-		//	float tempFloat = client->call("recievePosition", 0, i).as<float>(); 
-		//	tempProj[i] = tempFloat; 
-		//}
+		//CREATE SEPARATE CLASS FOR other player
+		float tempProj[3]; 
+		for (int i = 0;i < 3;i++) {
+			float tempFloat = client->call("recievePosition", 0, i).as<float>(); 
+			tempProj[i] = tempFloat; 
+		}
 
-		//glm::mat4 otherPosition;
-		//otherPosition = glm::make_mat4(tempProj); 
+		glm::vec3 otherPosition;
+		otherPosition = glm::make_vec3(tempProj); 
 
 
 		// Reset the game
 		if (gameState != 0 && hmdData.inputState.Buttons & ovrTouch_A) {
-			//client->call("quitGame", 0).as<int>();
+			client->call("setGameReset", 0, true);
 			resetGame();
+		}
+
+		if (client->call("gameReset", 0).as<bool>()) {
+			resetGame(); 
 		}
 
 		checkMoleculeIntersection();
