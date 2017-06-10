@@ -51,8 +51,8 @@ void Window::initialize_objects()
 	shaderProgram = LoadShaders("./shader_1.vert", "./shader_1.frag");
 	cam = new StereoCamera(2000.0f, 0.25f, 1.3333f, 45.0f, 0.001f, 10000.0f);
 
-	Model co2M("H:/FinalProject/LeapMotion/objects/co2/co2.obj");
-	Model o2M("H:/FinalProject/LeapMotion/objects/o2/o2.obj");
+	Model co2M("../objects/co2/co2.obj");
+	Model o2M("../objects/o2/o2.obj");
 	for (int i = 0; i < 50; i++) {
 		moleculeContainer[i] = new CO2Molecule(co2M, o2M, shaderProgram);
 	}
@@ -168,6 +168,8 @@ void Window::display_callback(GLFWwindow* window)
 	factoryModel->Render(Window::V, leftProjection); 
 	leftController->Render(Window::V, leftProjection); 
 	
+	Window::renderMolecules(leftProjection, Window::V);
+
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	glm::mat4 rightProjection = cam->ApplyRightFrustum();
@@ -175,6 +177,8 @@ void Window::display_callback(GLFWwindow* window)
 
 	factoryModel->Render(Window::V, rightProjection); 
 	leftController->Render(Window::V, rightProjection); 
+
+	Window::renderMolecules(rightProjection, Window::V);
 
 	glColorMask(true, true, true, true);
 
@@ -266,11 +270,11 @@ void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
 			moleculeContainer[i]->Render(view, projection);
 		}
 	}
+
+
 	//checkMoleculeIntersection();
 	//if hit with hand 
 	//if hit "render laser"
-
-
 	//if other client hit molecule
 }
 

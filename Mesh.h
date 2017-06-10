@@ -45,7 +45,7 @@ public:
 	vector <Texture> textures; 
 
 	Mesh(vector <Vertex> vertices, vector <GLuint> indices);//, vector <Texture> textures);
-	void draw(GLint shader);
+	void draw(GLint shader, GLuint textureID);
 
 	glm::vec3 ambient, diffuse, specular;
 	GLfloat shiny; 

@@ -12,11 +12,18 @@ GameController::GameController() {
 	// Creates the model for the controller
 	Model conM (pathToController);
 	controllerModel = conM;
-
+	controllerTextureID = conM.textureID; 
 	// Sets the position / rotation / scale
 	position = glm::vec3(0, 0, 0);
 
 	loadS(); 
+	//load texture maps 
+	vector<const GLchar * > textureFile;
+	for (int i = 0; i < 6; i++) {
+		textureFile.push_back("../objects/vr_test_pattern.ppm");
+	}
+
+	conM.loadTexturemap(textureFile); 
 }
 
 void GameController::loadS() {
@@ -55,6 +62,11 @@ void GameController::Render(glm::mat4 view, glm::mat4 proj) {
 	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "model"), 1, GL_FALSE, &toWorld[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "view"), 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "projection"), 1, GL_FALSE, &proj[0][0]);
+
+	////Texture render
+	//glActiveTexture(GL_TEXTURE0); // diff 
+	//glUniform1i(glGetUniformLocation(controllerShader, "cube"), 0);//diff
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, controllerTextureID); //diff
 
 	controllerModel.Draw(controllerShader);
 

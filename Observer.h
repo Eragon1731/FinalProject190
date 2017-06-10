@@ -1,7 +1,3 @@
-/////////////////////
-// Laser.h
-/////////////////////
-
 #pragma once
 #include <Windows.h>
 #include "Shader.h"
@@ -26,27 +22,22 @@
 #include <glm/gtx/quaternion.hpp>
 #include <GL/glew.h>
 
-class Laser {
-public:
-	float laserDist = 75.0f;;
-	glm::vec3 position;
-	glm::vec4 rotation;
-	glm::vec3 scale;
+#include "LEAP_SDK\include\Leap.h"
 
-	Laser();
-	void Render(glm::mat4 view, glm::mat4 proj);
-	void Draw();
-	void SetGreen();
-	void SetRed();
-	glm::vec3 color;
+class Observer {
+
+public:
+	Observer();
+	~Observer();
+	glm::mat4 observerWorld;
+
 
 private:
-	/* Data */
-	vector<GLfloat> vertices;
-	vector<GLuint> indices;
+	
+	Model observerModel;
+	GLchar* pathToObserver = "../objects/factory1/factory1.obj";
+	GLchar* vertexShaderPath = "./shader_1.vert";
+	GLchar* fragShaderPath = "./shader_1.frag";
+	GLint observerShader;
 
-	GLchar* vertexShaderPath = "./lineShader.vert";
-	GLchar* fragShaderPath   = "./lineShader.frag";
-	GLint laserShader;
-	GLuint VAO, VBO, EBO;
 };
