@@ -32,7 +32,30 @@ void Factory::Render(glm::mat4 view, glm::mat4 proj) {
 
 	// Calculate the toWorld matrix for the model
 	glm::mat4 model = glm::mat4(1.0f);
-	//model = glm::translate(model, glm::vec3(0.0f, -0.75f, -1.5f));
+
+	glm::vec3 tempTrans; 
+	glm::vec3 tempNorm; 
+	//try leap
+	if (controller.frame(0).hands().count() > 0) {
+		if (controller.frame(0).isValid()) {
+			Leap::HandList hands = controller.frame(0).hands();
+			int i = 0; 
+			auto hl = hands.begin();
+			Leap::Vector pos = (*hl).palmPosition();
+
+			tempTrans.x = pos.x;
+			tempTrans.y = pos.y;
+			tempTrans.z = pos.z;
+
+			tempNorm.x = (*hl).palmNormal().x; 
+			tempNorm.y = -(*hl).palmNormal().y;
+			tempNorm.z = (*hl).palmNormal().z;
+
+		}
+	}
+	tempTrans = tempTrans * 0.01f; 
+	model = glm::rotate(glm::mat4(1.0f), 0.7f, tempNorm); 
+	model = glm::translate(model, tempTrans);
 	//model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 	glUniformMatrix4fv(glGetUniformLocation(factoryShader, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(factoryShader, "view"), 1, GL_FALSE, &view[0][0]);

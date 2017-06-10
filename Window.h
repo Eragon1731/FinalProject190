@@ -11,6 +11,7 @@
 #include <GL/glew.h>
 #endif
 #include <GLFW/glfw3.h>
+#include "rpc\client.h"
 //#include "Cube.h"
 #include "shader.h"
 #include "StereoCamera.h"
@@ -35,6 +36,7 @@ public:
 
 	static void resetGame(); 
 	static void renderMolecules(glm::mat4 projection, glm::mat4 view); 
+	static void checkMoleculeIntersection(); 
 };
 
 #endif

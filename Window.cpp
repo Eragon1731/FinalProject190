@@ -31,8 +31,9 @@ GameController * leftController;
 int lastUsedMolecule = 5;
 int tick = 0;
 int activeMolecules = 5;
-
 int gameState = 0;
+
+rpc::client * client1; 
 
 CO2Molecule * moleculeContainer[50]; 
 
@@ -136,19 +137,17 @@ void Window::display_callback(GLFWwindow* window)
 	//TESTER::ANAGLYPH
 	glm::mat4 leftProjection = cam->ApplyLeftFrustum();
 	glColorMask(true, false, false, false);
-	//game->render(leftProjection, Window::V, shaderProgram);
-	factoryModel->Render(Window::V, leftProjection); 
-	Window::renderMolecules(Window::V, leftProjection);
-	leftController->Render(Window::V, leftProjection);
 
+	factoryModel->Render(Window::V, leftProjection); 
+	leftController->Render(Window::V, leftProjection); 
+	
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	glm::mat4 rightProjection = cam->ApplyRightFrustum();
 	glColorMask(false, false, true, false);
-	//game->render(rightProjection, Window::V, shaderProgram);
+
 	factoryModel->Render(Window::V, rightProjection); 
-	Window::renderMolecules(Window::V, rightProjection);
-	leftController->Render(Window::V, rightProjection);
+	leftController->Render(Window::V, rightProjection); 
 
 	glColorMask(true, true, true, true);
 	///////////////////////////////////////////
@@ -241,5 +240,8 @@ void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
 		}
 	}
 	//checkMoleculeIntersection();
+	//if hit with hand 
+	//if hit "render laser"
 
 }
+

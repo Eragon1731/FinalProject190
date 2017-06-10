@@ -25,12 +25,20 @@
 #include <glm/gtx/quaternion.hpp>
 #include <GL/glew.h>
 
+#include "Leap.h"
+using namespace Leap; 
 class Factory {
 public:
 	Factory();
 	void Render(glm::mat4 view, glm::mat4 proj);
 private:
 	/* Data */
+
+	Controller controller;
+	Frame frame;
+	//HandList hands;
+	Hand firsthand;
+
 	Model factoryModel;
 	GLchar* pathToFactory = "H:/FinalProject/LeapMotion/objects/factory1/factory1.obj";
 	GLchar* vertexShaderPath = "./shader_1.vert";

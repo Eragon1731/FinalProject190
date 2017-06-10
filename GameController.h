@@ -39,7 +39,7 @@ struct Ray {
 class GameController {
 public:
 
-	glm::mat4 model; 
+	glm::mat4 toWorld; 
 	glm::vec3 position;
 	glm::vec4 rotation;
 	glm::vec3 scale;

@@ -16,6 +16,7 @@ GameController::GameController() {
 	// Sets the position / rotation / scale
 	position = glm::vec3(0, 0, 0);
 
+	loadS(); 
 }
 
 void GameController::loadS() {
@@ -39,22 +40,19 @@ void GameController::Render(glm::mat4 view, glm::mat4 proj) {
 
 	//Calculate the toWorld matrix for the model
 
-	model = glm::translate(model, position);
-
 	frame = control.frame();
 	hands = frame.hands();
 	firsthand = hands[0];
 	
-	glm::vec3 tempPose = glm::normalize(glm::vec3(firsthand.palmPosition().x, firsthand.palmPosition().y, firsthand.palmPosition().z)); 
+	glm::vec3 tempPose = glm::vec3(firsthand.palmPosition().x, firsthand.palmPosition().y, firsthand.palmPosition().z); 
 	glm::vec3 tempNormal = glm::vec3(firsthand.palmNormal().x, firsthand.palmNormal().y, firsthand.palmNormal().z); 
 
-	float angle = acos(glm::dot(tempPose, glm::vec3(0.0f, 1.0f, 0.0f))); 
-	glm::vec3 pose = glm::cross(tempPose, tempNormal); 
+	tempPose = tempPose * 0.01f; 
 
-	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, pose);
-	model = rotationMatrix;
+	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), 0.7f, tempNormal);
+	toWorld = glm::translate(glm::mat4(1.0f), tempPose);
 
-	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "model"), 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "model"), 1, GL_FALSE, &toWorld[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "view"), 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "projection"), 1, GL_FALSE, &proj[0][0]);
 
