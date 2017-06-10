@@ -32,6 +32,7 @@ int assignID(int i) {
 	}
 
 	clientIDs[i] = i; 
+	cerr << "client id: " << clientIDs[i] << endl; 
 	return clientIDs[i];
 }
 
@@ -43,54 +44,31 @@ int quitGame(int id) {
 }
 
 //
-void clientProjection(int id, float pX, float pY, float pZ) {
+void clientPosition(int id, float pX, float pY, float pZ, float pW) {
 
 	//store projection
 	if (id == client1.id) {
 		client1.proj.push_back(pX);
 		client1.proj.push_back(pY);
 		client1.proj.push_back(pZ);
+		client1.proj.push_back(pW);
 	}
 	else if (id == client2.id) {
 		client2.proj.push_back(pX);
 		client2.proj.push_back(pY);
 		client2.proj.push_back(pZ);
+		client2.proj.push_back(pW);
 	}
-
+	cerr << "id: " << id << "in" << endl; 
 }
 
 //sends back each float in vector
 //column major 
-float sendProjection(int id, int count) {
+float recievePosition(int id, int count) {
 	if (id == client1.id)
 		return client2.proj[count];
 	else if (id == client2.id)
 		return client1.proj[count]; 
-
-}
-
-void clientView(int id, float pX, float pY, float pZ) {
-
-	//store projection
-	if (id == client1.id) {
-		client1.head.push_back(pX);
-		client1.head.push_back(pY);
-		client1.head.push_back(pZ);
-	}
-	else if (id == client2.id) {
-		client2.head.push_back(pX);
-		client2.head.push_back(pY);
-		client2.head.push_back(pZ);
-	}
-}
-
-//sends back each float in vector
-//column major 
-float sendHeadPose(int id, int count) {
-	if (id == client1.id)
-		return client2.head[count];
-	else if (id == client2.id)
-		return client1.head[count];
 
 }
 
@@ -105,13 +83,16 @@ bool gameWin(int id, bool winState) {
 	}
 }
 
+//should be ok 
+//NEED to check 
 int moleculeShot( int id, int moleculeID) {
 	if (id == 0) {
-		Client.moleculeid = moleculeID;
-		return -1; 
+		client1.moleculeid = moleculeID;
+		return client1.moleculeid; 
 	}
 	else if (id == 1) {
-		return Client.moleculeid; 
+	//	client2.moleculeid = moleculeID;
+		return client1.moleculeid; 
 	}
 }
 
@@ -122,12 +103,10 @@ int main() {
 	srv.bind("assignID", &assignID); 
 
 	//projection and view
-	srv.bind("clientProjection", &clientProjection); 
-	srv.bind("clientView", &clientView);
+	srv.bind("clientPosition", &clientPosition); 
 	/////
 
-	srv.bind("sendProjection", &sendProjection);
-	srv.bind("sendHeadPose", &sendHeadPose); 
+	srv.bind("recievePosition", &recievePosition);
 
 	srv.bind("gameWin", &gameWin);
 	srv.bind("moleculeShot", &moleculeShot);
