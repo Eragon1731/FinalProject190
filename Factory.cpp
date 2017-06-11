@@ -12,10 +12,7 @@ Factory::Factory() {
 	GLint facS = LoadShaders(vertexShaderPath, fragShaderPath); 
 	factoryShader = facS;
 
-	
-	// Creates the model for the factory
-	Model facM(pathToFactory);
-	factoryModel = facM;
+	factoryModel = std::make_shared<Model>(pathToFactory);
 
 	// Sets the position / rotation / scale
 	position = glm::vec3(0, 0, 0);
@@ -40,7 +37,7 @@ void Factory::Render(glm::mat4 view, glm::mat4 proj) {
 	glUniformMatrix4fv(glGetUniformLocation(factoryShader, "projection"), 1, GL_FALSE, &proj[0][0]);
 
 
-	factoryModel.Draw(factoryShader);
+	factoryModel->Draw(factoryShader);
 //	cerr << "can factory" << endl;
 }
 

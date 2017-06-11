@@ -1,11 +1,11 @@
 #include "Mesh.h"
 
-Mesh::Mesh(vector <Vertex> vertices, vector <GLuint> indices){
-	//, vector <Texture> textures){
+using namespace std;
 
+Mesh::Mesh(vector <Vertex> vertices, vector <GLuint> indices, vector<Texture> textures){
 	this->vertices = vertices;
 	this->indices = indices;
-//	this->textures = textures;
+	this->textures = textures;
 
 	setupMesh(); 
 
@@ -37,8 +37,8 @@ void Mesh::setupMesh() {
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal));
 	//         Vertex Texture Coords
-	//        glEnableVertexAttribArray(2);
-	//        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
+	 glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
 	glBindVertexArray(0);
 
 }

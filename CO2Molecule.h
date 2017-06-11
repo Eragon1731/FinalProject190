@@ -10,6 +10,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <memory>
 
 // GLM includes
 #include <glm/glm.hpp>
@@ -25,7 +26,7 @@
 class CO2Molecule {
 public:
 	CO2Molecule();
-	CO2Molecule(Model co2M, Model o2M, GLint shaderProgram);
+	CO2Molecule(Model & co2M, Model & o2M, GLint & shaderProgram);
 	void Render(glm::mat4 view, glm::mat4 proj);
 	void setup();
 	bool active = false; // makes sure the molecule is active before spawning
@@ -43,17 +44,17 @@ public:
 	glm::mat4 model;
 private:
 	/* Data */
-	Model currentModel;
-	Model co2Model;
-	Model o2Model;
+	std::shared_ptr<Model> currentModel;
+	std::shared_ptr<Model> co2Model;
+	std::shared_ptr<Model> o2Model;
 
 	GLint co2Shader; 
 	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
 	GLchar* fragShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag";
 
-	float y_move = rand() % 100 - 50;
-	float x_move = rand() % 100 - 50;
-	float z_move = rand() % 100 - 50;
+	float y_move = float(rand() % 100 - 50);
+	float x_move = float(rand() % 100 - 50);
+	float z_move = float(rand() % 100 - 50);
 
 	bool init = true;
 	int tick = 0;

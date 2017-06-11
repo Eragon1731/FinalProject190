@@ -1,6 +1,7 @@
 /////////////////////
 // GameScene.h
 /////////////////////
+#include "rpc\client.h"
 #include <iostream>
 #include <memory>
 #include <exception>
@@ -21,7 +22,7 @@
 #include <OVR_CAPI.h>
 #include <OVR_CAPI_GL.h>
 
-#define MAX_MOLECULES 100
+#define MAX_MOLECULES 50
 
 #define FAIL(X) throw std::runtime_error(X)
 
@@ -49,16 +50,14 @@ class GameScene {
 private:
 
 	Factory factoryModel;
-	
 	CO2Molecule moleculeContainer[MAX_MOLECULES];
-	
-	Controller leftController;
-	Controller rightController;
+	std::unique_ptr<Controller> leftController;
+	std::unique_ptr<Controller> rightController;
+	std::shared_ptr<Model> controllerModel;
 
 	int lastUsedMolecule = 5;
 	int tick = 0;
 	int activeMolecules = 5;
-
 	int gameState = 0;
 
 public:
@@ -72,27 +71,35 @@ public:
 		ovrInputState inputState;
 	} hmdData;
 
-	GameScene() {
-		GLint facS = LoadShaders("H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert", "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag");
+	//client server data store
+	rpc::client * client;
+	int clientID;
+	int moleculeID; 
 
-		Model co2M("H:/FinalProject/MinimalVR-master/objects/co2/co2.obj");
+	GameScene() {
+		GLint facS = LoadShaders("./shader_1.vert", "./shader_1.frag");
+
+		Model co2M("../objects/casque+loki.obj");
 		Model o2M("H:/FinalProject/MinimalVR-master/objects/o2/o2.obj");
 		for (int i = 0; i < MAX_MOLECULES; i++) {
 			moleculeContainer[i] = CO2Molecule(co2M, o2M, facS);
 		}
 
-		leftController.loadS(); 
-		rightController.loadS(); 
+		controllerModel = std::make_unique<Model>((GLchar*)"../objects/MJolnir.obj");
+
+		leftController = std::make_unique<Controller>(controllerModel);
+		rightController = std::make_unique<Controller>(controllerModel);
+
+		leftController->loadS(); 
+		rightController->loadS(); 
+
+		client = new rpc::client("localhost", 8080);
+		//assign id
+		clientID = client->call("assignID", 0).as<int>();
+		std::cerr << clientID << std::endl;
 	}
 
 	float intersection(glm::vec3 rayOrigin, glm::vec3 rayDir, glm::vec3 moleculePos, float radius) {
-
-		/*glm::vec3 w = rayOrigin - moleculePos;
-		float A = glm::dot(rayDir, rayDir);
-		float B = 2 * glm::dot(w, rayDir);
-		float C = glm::dot(w, w) - (radius*radius);
-		float D = B*B - 4.0f*A*C;
-		return D >= 0.0f ? (-B - sqrt(D)) / (2.0f*A) : std::numeric_limits<float>::infinity();*/
 
 		glm::vec3 dir = rayDir;
 		glm::vec3 eye = rayOrigin;
@@ -124,7 +131,6 @@ public:
 		}
 
 		return std::numeric_limits<float>::infinity();
-
 	}
 
 	void checkMoleculeIntersection() {
@@ -149,20 +155,20 @@ public:
 				moleculePos = moleculeContainer[i].position;
 
 				// left controller ray
-				rayOrigin = leftController.ray.origin;
-				rayDir = leftController.ray.dir;
-				rayDist = leftController.ray.dist;
+				rayOrigin = leftController->ray.origin;
+				rayDir = leftController->ray.dir;
+				rayDist = leftController->ray.dist;
 				intersectionDist = intersection(rayOrigin, rayDir, moleculePos, radius);
-				if (intersectionDist < rayDist && intersectionDist > 0.0f && leftController.GetColor()==red) {
+				if (intersectionDist < rayDist && intersectionDist > 0.0f && leftController->GetColor()==red) {
 					numSelecting++;
 				}
 
 				// right controller ray
-				rayOrigin = rightController.ray.origin;
-				rayDir = rightController.ray.dir;
-				rayDist = rightController.ray.dist;
+				rayOrigin = rightController->ray.origin;
+				rayDir = rightController->ray.dir;
+				rayDist = rightController->ray.dist;
 				intersectionDist = intersection(rayOrigin, rayDir, moleculePos, radius);
-				if (intersection(rayOrigin, rayDir, moleculePos, radius) < rayDist && rightController.GetColor() == red) {
+				if (intersection(rayOrigin, rayDir, moleculePos, radius) < rayDist && rightController->GetColor() == red) {
 					numSelecting++;
 				}
 				
@@ -170,9 +176,23 @@ public:
 					moleculeContainer[i].ChangeToO2();
 					moleculeContainer[i].isCO2 = false;
 					activeMolecules--;
+
+					//store molecule shot
+					client->call("setMoleculeShot", 0, i);
 				}
+
+				//check if opponent shot any
+				int isShot = client->call("moleculeShot", 0).as<int>();
+
+				if (gameState ==0 && moleculeContainer[isShot].isCO2 && numSelecting == 2) {
+					moleculeContainer[isShot].ChangeToO2();
+					moleculeContainer[isShot].isCO2 = false;
+					activeMolecules--;
+				}
+				////////////////////////////////
 			}
 		}
+
 	}
 
 	void resetGame() {
@@ -190,12 +210,14 @@ public:
 		lastUsedMolecule = 5;
 		tick = 0;
 		gameState = 0;
+
+		client->call("setGameReset", 0, false);
 	}
 
 	void render(const mat4 & projection, const mat4 & modelview) {
 
 		factoryModel.Render(modelview, projection);
-		
+	
 		// Set a new molecule to active every second (oculus should have 90 fps)
 
 		if (tick == 200) {
@@ -219,11 +241,12 @@ public:
 
 			glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 			gameState = 2;
+			
 		}
 		else if (activeMolecules <= 0 && gameState == 0) {
 			// win!
-			gameState = 1;
 			glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
+			gameState = 1;
 		}
 
 		// Render initial active molecules
@@ -239,30 +262,53 @@ public:
 		}
 
 		// Controlls for the left controller
-		leftController.inputState = hmdData.inputState;
-		leftController.btn1 = ovrTouch_X;
-		leftController.btn2 = ovrTouch_Y;
-		leftController.hand = ovrHand_Left;
+		leftController->inputState = hmdData.inputState;
+		leftController->btn1 = ovrTouch_X;
+		leftController->btn2 = ovrTouch_Y;
+		leftController->hand = ovrHand_Left;
 
-		leftController.position = hmdData.leftControllerPos;
-		leftController.rotation = hmdData.leftControllerOrientation;
-		leftController.Render(modelview, projection);
+		leftController->position = hmdData.leftControllerPos;
+		leftController->rotation = hmdData.leftControllerOrientation;
+		leftController->Render(modelview, projection);
+
+		////sending position of left 
+		//sending the position vector
+		client->call("clientPosition", 0, leftController->position.x, leftController->position.y, leftController->position.z);
 
 		// Controlls for the right controller
-		rightController.inputState = hmdData.inputState;
-		rightController.btn1 = ovrTouch_A;
-		rightController.btn2 = ovrTouch_B;
-		rightController.hand = ovrHand_Right;
+		rightController->inputState = hmdData.inputState;
+		rightController->btn1 = ovrTouch_A;
+		rightController->btn2 = ovrTouch_B;
+		rightController->hand = ovrHand_Right;
 
-		rightController.position = hmdData.rightControllerPos;
-		rightController.rotation = hmdData.rightControllerOrientation;
-		rightController.Render(modelview, projection);
+		rightController->position = hmdData.rightControllerPos;
+		rightController->rotation = hmdData.rightControllerOrientation;
+		rightController->Render(modelview, projection);
+
+		//setting up projection for another player
+		//CREATE SEPARATE CLASS FOR other player
+		float tempProj[3]; 
+		for (int i = 0;i < 3;i++) {
+			float tempFloat = client->call("recievePosition", 0, i).as<float>(); 
+			tempProj[i] = tempFloat; 
+		}
+
+		glm::vec3 otherPosition;
+		otherPosition = glm::make_vec3(tempProj); 
+
 
 		// Reset the game
 		if (gameState != 0 && hmdData.inputState.Buttons & ovrTouch_A) {
+			client->call("setGameReset", 0, true);
 			resetGame();
 		}
 
+		if (client->call("gameReset", 0).as<bool>()) {
+			resetGame(); 
+		}
+
 		checkMoleculeIntersection();
+
 	}
+
 };

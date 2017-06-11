@@ -42,8 +42,8 @@ public:
 
 private:
 	/* Data */
-	vector<GLfloat> vertices;
-	vector<GLuint> indices;
+	std::vector<GLfloat> vertices;
+	std::vector<GLuint> indices;
 
 	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/lineShader.vert";
 	GLchar* fragShaderPath   = "H:/FinalProject/MinimalVR-master/Minimal/lineShader.frag";

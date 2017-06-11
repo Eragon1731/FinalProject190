@@ -16,22 +16,22 @@
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 
-using namespace std; 
-
 class Model {
 
 public:
-	Model() {}
 	Model(GLchar * path);
 
 	void Draw(GLint shaderProgram); 
 
 private:
-	vector<Mesh> meshes;
-	string directory; 
+	std::vector<Mesh> meshes;
+	std::string directory; 
+	std::vector<Texture> textures_loaded;
 
-	void loadModel(string path); 
+	void loadModel(std::string path); 
 	void processNode(aiNode* node, const aiScene* scene); 
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+	std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
 
+	unsigned int TextureFromFile(const char *path, const std::string &directory);
 };

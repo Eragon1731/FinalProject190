@@ -5,6 +5,7 @@
 #include "CO2Molecule.h"
 
 #define BOUND 1.2f
+//#define _ITERATOR_DEBUG_LEVEL 0
 
 /////////////////////////////////////////////////////
 
@@ -12,16 +13,14 @@ CO2Molecule::CO2Molecule() {
 	this->setup();
 }
 
-CO2Molecule::CO2Molecule(Model co2M, Model o2M, GLint shaderProgram) {
+CO2Molecule::CO2Molecule(Model & co2M, Model & o2M, GLint & shaderProgram):
+currentModel(&co2M),
+co2Model(&co2M),
+o2Model(&o2M)
+{
 	// Create the shader to use for the factory
 	//GLint facS = LoadShaders(vertexShaderPath, fragShaderPath);
 	co2Shader = shaderProgram;
-
-
-	// Creates the model for the factory
-	currentModel = co2M;
-	co2Model = co2M;
-	o2Model = o2M;
 
 	random_vector = glm::normalize(glm::vec3(rand(), rand(), rand()));
 
@@ -96,6 +95,6 @@ void CO2Molecule::Render(glm::mat4 view, glm::mat4 proj) {
 	glUniformMatrix4fv(glGetUniformLocation(co2Shader, "projection"), 1, GL_FALSE, &proj[0][0]);
 
 
-	currentModel.Draw(co2Shader);
+	currentModel->Draw(co2Shader);
 
 }

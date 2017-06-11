@@ -14,6 +14,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 // GLM includes
@@ -42,12 +43,14 @@ public:
 	glm::vec4 rotation;
 	glm::vec3 scale;
 
+	//// 
+	glm::mat4 model;
 	// Controlls for this controller
 	ovrInputState inputState;
 	ovrTouch btn1, btn2;
 	ovrHandType hand;
 
-	Controller();
+	Controller(std::shared_ptr<Model> & model);
 	void loadS(); 
 	void Render(glm::mat4 view, glm::mat4 proj);
 
@@ -57,8 +60,7 @@ public:
 private:
 	/* Data */
 	Laser laser;
-	Model controllerModel;
-	GLchar* pathToController = "H:/FinalProject/MinimalVR-master/objects/factory4/factory4.obj";
+	std::shared_ptr<Model> controllerModel;
 	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
 	GLchar* fragShaderPath   = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag";
 	GLint controllerShader;

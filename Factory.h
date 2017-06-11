@@ -13,6 +13,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <memory>
 
 // GLM includes
 #include <glm/glm.hpp>
@@ -31,7 +32,7 @@ public:
 	void Render(glm::mat4 view, glm::mat4 proj);
 private:
 	/* Data */
-	Model factoryModel;
+	std::shared_ptr<Model> factoryModel;
 	GLchar* pathToFactory = "H:/FinalProject/MinimalVR-master/objects/factory1/factory1.obj";
 	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
 	GLchar* fragShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag";

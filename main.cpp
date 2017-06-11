@@ -17,7 +17,7 @@ limitations under the License.
 
 ************************************************************************************/
 
-
+#include "rpc\client.h"
 #include <iostream>
 #include <memory>
 #include <string>
@@ -680,10 +680,12 @@ protected:
 		glEnable(GL_DEPTH_TEST);
 		ovr_RecenterTrackingOrigin(_session);
 		cubeScene = std::shared_ptr<GameScene>(new GameScene());
+
 	}
 
 	void shutdownGl() override {
 		cubeScene.reset();
+
 	}
 
 	void renderScene(const glm::mat4 & projection, const glm::mat4 & headPose) override {
