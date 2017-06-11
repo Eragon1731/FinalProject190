@@ -46,6 +46,8 @@
     <None Include="shader_1.vert" />
     <None Include="lineShader.frag" />
     <None Include="lineShader.vert" />
+    <None Include="controllerShader.frag" />
+    <None Include="controllerShader.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Model.h">

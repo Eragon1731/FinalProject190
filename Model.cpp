@@ -18,6 +18,8 @@ void Model::Draw(GLint shaderProgram) {
 Model::~Model() {
 	for(int i =0; i<textures_loaded.size(); i++)
 		glDeleteTextures(1, &(textures_loaded.at(i).id)); 
+	meshes.clear();
+	textures_loaded.clear();
 }
 
 void Model::loadModel(string path) {
@@ -77,8 +79,14 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		vector.z = mesh->mNormals[i].z;
 		vertex.Normal = vector;
 		// Texture Coordinates
-
-		//            vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+		if (mesh->mTextureCoords[0])
+		{
+			vertex.TexCoords.s = mesh->mTextureCoords[0][i].x;
+			vertex.TexCoords.t = mesh->mTextureCoords[0][i].y;
+		}
+		else {
+			vertex.TexCoords = glm::vec2(0.f);
+		}
 		vertices.push_back(vertex);
 	}
 	// Now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.

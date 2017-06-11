@@ -61,8 +61,8 @@ private:
 	/* Data */
 	Laser laser;
 	std::shared_ptr<Model> controllerModel;
-	GLchar* vertexShaderPath = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.vert";
-	GLchar* fragShaderPath   = "H:/FinalProject/MinimalVR-master/Minimal/shader_1.frag";
+	GLchar* vertexShaderPath = "./controllerShader.vert";
+	GLchar* fragShaderPath   = "./controllerShader.frag";
 	GLint controllerShader;
 
 

@@ -150,6 +150,8 @@
     <ClCompile Include="shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="controllerShader.frag" />
+    <None Include="controllerShader.vert" />
     <None Include="lineShader.frag" />
     <None Include="lineShader.vert" />
     <None Include="packages.config" />
