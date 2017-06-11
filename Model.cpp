@@ -15,6 +15,11 @@ void Model::Draw(GLint shaderProgram) {
 	}
 }
 
+Model::~Model() {
+	for(int i =0; i<textures_loaded.size(); i++)
+		glDeleteTextures(1, &(textures_loaded.at(i).id)); 
+}
+
 void Model::loadModel(string path) {
 	//Read file via ASSIMP
 		Assimp::Importer importer;

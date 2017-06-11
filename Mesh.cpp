@@ -10,6 +10,16 @@ Mesh::Mesh(vector <Vertex> vertices, vector <GLuint> indices, vector<Texture> te
 	setupMesh(); 
 
 }
+Mesh::Mesh(vector <Vertex> vertices, vector <GLuint> indices) {
+	this->vertices = vertices;
+	this->indices = indices;
+
+	setupMesh();
+
+}
+
+Mesh::~Mesh() {}
+
 
 void Mesh::setupMesh() {
 

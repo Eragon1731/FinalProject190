@@ -42,14 +42,15 @@ public:
 	std::vector<GLuint> indices;
 	std::vector <Texture> textures; 
 	Mesh() {}
-	Mesh(std::vector <Vertex> vertices, std::vector <GLuint> indices, std::vector <Texture> textures = std::vector<Texture>());
+	Mesh(std::vector <Vertex> vertices, std::vector <GLuint> indices, std::vector <Texture> textures);
+	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices);
 	void draw(GLint shader);
 
 	glm::vec3 ambient, diffuse, specular;
 	GLfloat shiny; 
 
 	GLuint uProjection, uView, uModel;
-
+	~Mesh(); 
 
 private:
 	GLuint VAO, VBO, EBO;

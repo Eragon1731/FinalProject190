@@ -20,7 +20,7 @@ class Model {
 
 public:
 	Model(GLchar * path);
-
+	~Model(); 
 	void Draw(GLint shaderProgram); 
 
 private:

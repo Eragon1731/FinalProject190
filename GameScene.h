@@ -43,7 +43,6 @@ using glm::quat;
 
 using namespace glm;
 
-
 // a class for encapsulating building and rendering an RGB cube
 class GameScene {
 
