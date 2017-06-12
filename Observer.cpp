@@ -23,7 +23,7 @@ void Observer::Render(glm::mat4 view, glm::mat4 proj) {
 
 	//Calculate the toWorld matrix for the model
 
-	observerWorld = glm::translate(observerWorld, otherPosition);
+	observerWorld = glm::translate(glm::mat4(1.0f), otherPosition);
 
 	glUniformMatrix4fv(glGetUniformLocation(observerShader, "model"), 1, GL_FALSE, &observerWorld[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(observerShader, "view"), 1, GL_FALSE, &view[0][0]);

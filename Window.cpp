@@ -4,7 +4,7 @@
 #include "GameController.h"
 #include "CO2Molecule.h"
 
-
+#define MAX_NUMBER 1
 
 const char* window_title = "GLFW Starter Project"; 
 GLint shaderProgram;
@@ -31,8 +31,10 @@ GameController * controller;
 
 int lastUsedMolecule = 5;
 int tick = 0;
-int activeMolecules = 5;
+//int activeMolecules = 5;
+int activeMolecules = 1; 
 int gameState = 0;
+bool win = false; 
 
 //SERVER CLIENT DATA
 rpc::client * client1; 
@@ -42,7 +44,7 @@ bool resetFlag = false;
 
 ///////
 Observer * otherController; 
-CO2Molecule * moleculeContainer[50]; 
+CO2Molecule * moleculeContainer[MAX_NUMBER]; 
 
 void Window::initialize_objects()
 {
@@ -55,7 +57,7 @@ void Window::initialize_objects()
 
 	Model co2M("../objects/co2/co2.obj");
 	Model o2M("../objects/o2/o2.obj");
-	for (int i = 0; i < 50; i++) {
+	for (int i = 0; i < MAX_NUMBER; i++) {
 		moleculeContainer[i] = new CO2Molecule(co2M, o2M, shaderProgram);
 	}
 
@@ -139,19 +141,17 @@ void Window::idle_callback()
 	if (client1->call("gameReset", 1).as<bool>()) {
 		Window::resetGame(); 
 	}
+	//send position
+	client1->call("sendPosition", 1, controller->toWorld[3].x, controller->toWorld[3].y, controller->toWorld[3].z);
 
-	//setting and retrieving position of observer
-	client1->call("clientPosition", 1, controller->toWorld[3].x, controller->toWorld[3].y, controller->toWorld[3].z);
-	float tempProj[3];
-	for (int count = 0; count < 3; count++) {
-		float tempFloat = client1->call("recievePosition", 1, count).as<float>();
-		tempProj[count] = tempFloat * 10.0f;
-		cout << "count: "<< count<< endl;
-		cout << "tempProj[i]: " << tempProj[count] << endl;
-	}
+	float tempPos[3];
+	tempPos[0] = client1->call("positionX", 0).as<float>() * -20.0f;
+	tempPos[1] = client1->call("positionY", 0).as<float>() * -20.0f;
+	tempPos[2] = client1->call("positionZ", 0).as<float>() * 20.0f;
+	cout << "tempPos: " << tempPos[0]<<" "<<tempPos[1]<<" "<<tempPos[2] << endl;
 
 	glm::vec3 otherPose;
-	otherPose = glm::make_vec3(tempProj);
+	otherPose = glm::make_vec3(tempPos);
 	otherController->otherPosition = otherPose;
 }
 
@@ -169,7 +169,7 @@ void Window::display_callback(GLFWwindow* window)
 
 	factoryModel->Render(Window::V, leftProjection); 
 	controller->Render(Window::V, leftProjection);
-	
+
 	//molecules
 	Window::renderMolecules(leftProjection, Window::V);
 
@@ -225,7 +225,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 
 void Window::resetGame() {
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
-	for (int i = 0; i < 50; i++) {
+	for (int i = 0; i < MAX_NUMBER; i++) {
 		moleculeContainer[i]->active = false;
 		moleculeContainer[i]->isCO2 = true;
 		moleculeContainer[i]->ChangeToCO2();
@@ -234,57 +234,60 @@ void Window::resetGame() {
 		moleculeContainer[i]->position = moleculeContainer[i]->spawn_point;
 		moleculeContainer[i]->rotation = 0;
 	}
-	activeMolecules = 5;
+	//activeMolecules = 5;
+	activeMolecules = 1; 
 	lastUsedMolecule = 5;
 	tick = 0;
 	gameState = 0;
+	win = false; 
 	
 	//set back 
-	client1->call("setGameReset", 1, false);
+	client1->call("setGameReset", 1, true);
 }
 
 void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
 
 	// Set a new molecule to active every second (oculus should have 90 fps)
 
-	if (tick == 200) {
-		moleculeContainer[lastUsedMolecule]->active = true;
-		activeMolecules++;
-		lastUsedMolecule++;
-		lastUsedMolecule %= 50;
-		tick = 0;
-	}
+	//if (tick == 200) {
+	//	moleculeContainer[lastUsedMolecule]->active = true;
+	//	activeMolecules++;
+	//	lastUsedMolecule++;
+	//	lastUsedMolecule %= 50;
+	//	tick = 0;
+	//}
 	if (gameState == 0) tick++;
 
 	// Check game state for game over or win
-	if (activeMolecules > 10 && gameState == 0) {
+	if (tick > 1000){// && gameState == 0) {
 		// looooose
 
-		for (int i = 0; i < 50; i++) {
-			moleculeContainer[i]->active = true;
-			moleculeContainer[i]->spawn_point = glm::vec3(rand() % 4 - 2, rand() % 4 - 2, rand() % 4 - 2);
-			moleculeContainer[i]->position = moleculeContainer[i]->spawn_point;
-		}
+		//for (int i = 0; i < 50; i++) {
+		//	moleculeContainer[i]->active = true;
+		//	moleculeContainer[i]->spawn_point = glm::vec3(rand() % 4 - 2, rand() % 4 - 2, rand() % 4 - 2);
+		//	moleculeContainer[i]->position = moleculeContainer[i]->spawn_point;
+		//}
 
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		gameState = 2;
 	}
-	else if (activeMolecules <= 0 && gameState == 0) {
-		// win!
+	//else if (activeMolecules <= 0 && gameState == 0) {
+	else if(win){	// win!
 		gameState = 1;
 		glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
 	}
 
 	// Render initial active molecules
-	for (int i = 0; i < 5; ++i) {
-		moleculeContainer[i]->active = true;
-	}
+	//for (int i = 0; i < 5; ++i) {
+	//	moleculeContainer[i]->active = true;
+	//}
 
 	// Render all the active molecules
-	for (int i = 0; i < 50; ++i) {
-		if (moleculeContainer[i]->active) {
-			moleculeContainer[i]->Render(view, projection);
-		}
+	for (int i = 0; i < MAX_NUMBER; ++i) {
+		//if (moleculeContainer[i]->active) {
+		moleculeContainer[i]->active = true; 
+		moleculeContainer[i]->Render(view, projection);
+		//}
 	}
 
 
@@ -305,7 +308,7 @@ void Window::checkMoleculeIntersection() {
 	float intersectionDist;
 
 	// Cycle through all our molecules
-	for (int i = 0; i < 50; ++i) {
+	for (int i = 0; i < MAX_NUMBER; ++i) {
 		if (moleculeContainer[i]->active) {
 
 			int numSelecting = 0;
@@ -325,7 +328,7 @@ void Window::checkMoleculeIntersection() {
 				moleculeContainer[i]->ChangeToO2();
 				moleculeContainer[i]->isCO2 = false;
 				activeMolecules--;
-
+				win = true; 
 				//store molecule shot
 				client1->call("setMoleculeShot", 0, i);
 			}
@@ -337,6 +340,7 @@ void Window::checkMoleculeIntersection() {
 				moleculeContainer[isShot]->ChangeToO2();
 				moleculeContainer[isShot]->isCO2 = false;
 				activeMolecules--;
+				win = true; 
 			}
 			////////////////////////////////
 		}

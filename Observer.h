@@ -40,7 +40,7 @@ private:
 
 
 	Model observerModel;
-	GLchar* pathToObserver = "../objects/factory1/factory1.obj";
+	GLchar* pathToObserver = "../objects/cube.obj";
 	GLchar* vertexShaderPath = "./shader_1.vert";
 	GLchar* fragShaderPath = "./shader_1.frag";
 	GLint observerShader;
