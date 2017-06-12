@@ -275,8 +275,13 @@ public:
 
 		////sending position of left 
 		//sending the position vector
-		client->call("clientPosition", 0, leftController.position.x, leftController.position.y, leftController.position.z);
-
+		//client->call("clientPosition", 0, leftController.position.x, leftController.position.y, leftController.position.z);
+		client->call("sendPosition",0, leftController.position.x, leftController.position.y, leftController.position.z);
+		
+		float result;
+		result = client->call("positionX", 0).as<float>();
+		std::cerr << "result: " << result << std::endl; 
+		
 		// Controlls for the right controller
 		rightController.inputState = hmdData.inputState;
 		rightController.btn1 = ovrTouch_A;
@@ -290,13 +295,13 @@ public:
 		//setting up projection for another player
 		//CREATE SEPARATE CLASS FOR other player
 		float tempProj[3]; 
-		for (int i = 0;i < 3;i++) {
-			float tempFloat = client->call("recievePosition", 0, i).as<float>(); 
-			tempProj[i] = tempFloat; 
-		}
+		//for (int i = 0;i < 3;i++) {
+		//	float tempFloat = client->call("recievePosition", 0, i).as<float>(); 
+		//	tempProj[i] = tempFloat; 
+		//}
 
-		glm::vec3 otherPosition;
-		otherPosition = glm::make_vec3(tempProj); 
+		//glm::vec3 otherPosition;
+		//otherPosition = glm::make_vec3(tempProj); 
 
 
 		// Reset the game
