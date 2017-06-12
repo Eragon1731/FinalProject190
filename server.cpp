@@ -11,8 +11,10 @@ int clientIDs[5] = {-1, -1, -1,-1,-1};
 
 struct Client
 {
-	vector<float> pose;
-	//float position[16] = { 0 }; 
+	float px = 0.0f;
+	float py = 0.0f;
+	float pz = 0.0f;
+
 	int id; 
 	int gamestate;
 	int moleculeid; 
@@ -22,20 +24,23 @@ struct Client
 
 struct Client client1;
 struct Client client2; 
+//////////
+float c2_x = 0.0f; 
+float c2_y = 0.0f;
+float c2_z = 0.0f; 
 
+////////////
 //assignID ok
 int assignID(int i) {
 	
 	if (i == 0) {
 		client1.id = i; 
+		return client1.id; 
 	}
 	if (i == 1) {
 		client2.id == i; 
+		return client2.id; 
 	}
-
-	clientIDs[i] = i; 
-	cout << "client id: " << clientIDs[i] << endl; 
-	return clientIDs[i];
 }
 
 //NEED to test
@@ -45,47 +50,6 @@ int quitGame(int id) {
 	return clientIDs[id];
 }
 
-//setting position
-void clientPosition(int id, float pX, float pY, float pZ) {
-
-	//store projection
-	if (id == client1.id) {
-		client1.pose.push_back(pX);
-		client1.pose.push_back(pY);
-		client1.pose.push_back(pZ);
-	
-	}
-	else if (id == client2.id) {
-		client2.pose.push_back(pX);
-		client2.pose.push_back(pY);
-		client2.pose.push_back(pZ);
-	}
-
-}
-
-//recieving positions from struct  
-float recievePosition(int id, int count) {
-
-	if (client1.pose.empty() == true) {
-		client1.pose.assign(3,0.0f);
-		printf("client0 empty\n");
-		return 0;
-	}
-	else if (client2.pose.empty() == true) {
-		client2.pose.assign(3, 0.0f);
-		printf("client1 empty\n");
-		return 0;
-	}
-
-	if (id == client1.id && (!client2.pose.empty())) {
-		//printf("returning observer for 0\n: %f", client2.pose[count]);
-		return client2.pose[count];
-	}
-	else if (id == client2.id && (!client1.pose.empty())) {
-		printf("returning observer for 1\n: %f",client1.pose[count]);
-		return client1.pose[count];
-	}
-}
 
 //setting win or loose state 
 void setWinState(int id, int winState) {
@@ -154,16 +118,88 @@ bool gameReset(int id) {
 	}
 }
 
+void sendPosition(int id, float x, float y, float z) {
+	if (id == client1.id) {
+		client1.px = x;
+		client1.py = y; 
+		client1.pz = z; 
+	}
+	if (id == 1) {
+		client2.px = x;
+		c2_x = x; 
+		client2.py = y;
+		c2_y = y;
+		client2.pz = z;
+		c2_z = z; 
+		cout << "client2 not empty: "<< c2_x <<" "<<c2_y<<" "<<c2_z<< endl;
+	}
+}
+//for x
+float positionX(int id) {
+	//cout << "getting position: " << id << endl;
+	if (id == client1.id && client1.px != 0) {
+	//	cout << "client1 data" << endl;
+		return client1.px;
+	}
+	else
+		return 0; 
+	cout << "client2 data before: " << client2.px << endl;
+	if (id == client2.id && client2.px != 0) {
+		cout << "getting position: " << id << endl;
+		cout << "client2 data"<<client2.px << endl;
+		return client2.px;
+	}
+	else
+		return 0;
+}
+float positionY(int id) {
+
+	if (id == client1.id && client1.py != 0)
+		return client1.py;
+	else if (id == client2.id && client2.py != 0)
+		return client2.py;
+	else
+		return 0;
+}
+float positionZ(int id) {
+
+	if (id == client1.id && client1.pz != 0)
+		return client1.pz;
+	else if (id == client2.id && client2.pz != 0)
+		return client2.pz;
+	else
+		return 0;
+}
+//for leap->ocu only
+float leapX(int id) {
+	cout << "return " << id << " " << c2_x << endl;
+	return c2_x;
+}
+float leapY(int id) {
+	cout << "return " << id << " " << c2_y << endl;
+	return c2_y;
+}
+float leapZ(int id) {
+	cout << "return " << id << " " << c2_z << endl;
+	return c2_z;
+}
+
+
 int main() {
 	rpc::server srv(8080);
-
 
 	srv.bind("assignID", &assignID); 
 
 	//observer position 
-	srv.bind("recievePosition", &recievePosition);
-	srv.bind("clientPosition", &clientPosition); 
+	srv.bind("sendPosition", &sendPosition);
+	srv.bind("positionX", &positionX);
+	srv.bind("positionY", &positionY);
+	srv.bind("positionZ", &positionZ);
 
+	srv.bind("leapX", &leapX);
+	srv.bind("leapY", &leapY);
+	srv.bind("leapZ", &leapZ);
+	///////
 	//game state
 	srv.bind("setWinState", &setWinState);
 	srv.bind("gameWin", &gameWin);
