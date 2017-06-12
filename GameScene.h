@@ -40,6 +40,7 @@ using glm::quat;
 #include "Factory.h"
 #include "Controller.h"
 #include "CO2Molecule.h"
+#include "Observer.h"
 
 using namespace glm;
 
@@ -52,9 +53,10 @@ private:
 	Factory factoryModel;
 	
 	CO2Molecule moleculeContainer[MAX_MOLECULES];
-	
 	Controller leftController;
 	Controller rightController;
+
+	Observer * otherController; 
 
 	int lastUsedMolecule = 5;
 	int tick = 0;
@@ -91,7 +93,7 @@ public:
 
 		leftController.loadS(); 
 		rightController.loadS(); 
-
+		otherController = new Observer(); 
 		client = new rpc::client("localhost", 8080);
 		//assign id
 		clientID = client->call("assignID", 0).as<int>();
@@ -218,49 +220,23 @@ public:
 	void render(const mat4 & projection, const mat4 & modelview) {
 
 		factoryModel.Render(modelview, projection);
-	
-		// Set a new molecule to active every second (oculus should have 90 fps)
 
-		//if (tick == 200) {
-		//	moleculeContainer[lastUsedMolecule].active = true;
-		//	activeMolecules++;
-		//	lastUsedMolecule++;
-		//	lastUsedMolecule %= MAX_MOLECULES;
-		//	tick = 0;
-		//}
 		if(gameState == 0) tick++;
 
-		// Check game state for game over or win
-	//	if (activeMolecules > 10 && gameState == 0) {
-			// looooose
+
 		if(tick > 1000){
-		//	for (int i = 0; i < MAX_MOLECULES; i++) {
-		/*		moleculeContainer[i].active = true;
-				moleculeContainer[i].spawn_point = glm::vec3(rand() % 4 - 2, rand() % 4 - 2, rand() %4 - 2);
-				moleculeContainer[i].position = moleculeContainer[i].spawn_point;
-			}
-*/
 			glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 			gameState = 2;
-			
 		}
-		//else if (activeMolecules <= 0 && gameState == 0) {
 		else if (win){	// win!
 			glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
 			gameState = 1;
 		}
 
-		// Render initial active molecules
-		//for (int i = 0; i < 5; ++i) {
-		//	moleculeContainer[i].active = true;
-		//}
-		
 		// Render all the active molecules
 		for (int i = 0; i < MAX_MOLECULES; ++i) {
-		//	if (moleculeContainer[i].active) {
 				moleculeContainer[i].active = true; 
 				moleculeContainer[i].Render(modelview, projection);
-		//	}
 		}
 
 		// Controlls for the left controller
@@ -278,10 +254,6 @@ public:
 		//client->call("clientPosition", 0, leftController.position.x, leftController.position.y, leftController.position.z);
 		client->call("sendPosition",0, leftController.position.x, leftController.position.y, leftController.position.z);
 		
-		float result;
-		result = client->call("positionX", 0).as<float>();
-		std::cerr << "result: " << result << std::endl; 
-		
 		// Controlls for the right controller
 		rightController.inputState = hmdData.inputState;
 		rightController.btn1 = ovrTouch_A;
@@ -291,18 +263,21 @@ public:
 		rightController.position = hmdData.rightControllerPos;
 		rightController.rotation = hmdData.rightControllerOrientation;
 		rightController.Render(modelview, projection);
-
+		///////
+		float leapX; 
+		leapX = client->call("leapX", 0).as<float>();
+		cout << "leapX: " << leapX << endl;
 		//setting up projection for another player
 		//CREATE SEPARATE CLASS FOR other player
-		float tempProj[3]; 
-		//for (int i = 0;i < 3;i++) {
-		//	float tempFloat = client->call("recievePosition", 0, i).as<float>(); 
-		//	tempProj[i] = tempFloat; 
-		//}
+		float tempPos[3];
+		tempPos[0] = client->call("leapX", 1).as<float>();// *20.0f;
+		tempPos[1] = client->call("leapY", 1).as<float>();// *20.0f;
+		tempPos[2] = client->call("leapZ", 1).as<float>();// *20.0f;
+		//cout << "tempPos: " << tempPos[0] << " " << tempPos[1] << " " << tempPos[2] << endl;
 
-		//glm::vec3 otherPosition;
-		//otherPosition = glm::make_vec3(tempProj); 
-
+		glm::vec3 otherPose;
+		otherPose = glm::make_vec3(tempPos);
+		otherController->otherPosition = otherPose; 
 
 		// Reset the game
 		if (gameState != 0 && hmdData.inputState.Buttons & ovrTouch_A) {
@@ -315,7 +290,6 @@ public:
 		}
 
 		checkMoleculeIntersection();
-
+		otherController->Render(modelview, projection);
 	}
-
 };
