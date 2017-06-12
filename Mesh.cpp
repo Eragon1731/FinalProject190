@@ -61,10 +61,6 @@ void Mesh::draw(GLint shader) {
 	// Now draw the cube. We simply need to bind the VAO associated with it.
 	glBindVertexArray(this->VAO);
 
-	////Texture render
-	//glActiveTexture(GL_TEXTURE0); // diff 
-	//glUniform1i(glGetUniformLocation(shader, "cube"), 0);//diff
-	//glBindTexture(GL_TEXTURE_CUBE_MAP, textureID); //diff
 
 	// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
 	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);

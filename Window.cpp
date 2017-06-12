@@ -57,6 +57,7 @@ void Window::initialize_objects()
 
 	Model co2M("../objects/co2/co2.obj");
 	Model o2M("../objects/o2/o2.obj");
+
 	for (int i = 0; i < MAX_NUMBER; i++) {
 		moleculeContainer[i] = new CO2Molecule(co2M, o2M, shaderProgram);
 	}
@@ -137,10 +138,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 //Server to client logic
 void Window::idle_callback()
 {
-	//checking if reset
-	if (client1->call("gameReset", 1).as<bool>()) {
-		Window::resetGame(); 
-	}
+	
 	//send position
 	client1->call("sendPosition", 1, (float)controller->toWorld[3].x, (float)controller->toWorld[3].y, (float)controller->toWorld[3].z);
 	//cout << "controllerx: " << controller->toWorld[3].x << endl; 
@@ -210,8 +208,9 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 		else if (key == GLFW_KEY_R) {
-			client1->call("setGameReset", 1, true);
 			Window::resetGame();
+			win = false;
+			glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 		}
 		//used to fire laser
 		else if (key == GLFW_KEY_SPACE) {
@@ -224,7 +223,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 }
 
 void Window::resetGame() {
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+
 	for (int i = 0; i < MAX_NUMBER; i++) {
 		moleculeContainer[i]->active = false;
 		moleculeContainer[i]->isCO2 = true;
@@ -239,48 +238,25 @@ void Window::resetGame() {
 	lastUsedMolecule = 5;
 	tick = 0;
 	gameState = 0;
-	win = false; 
-	
-	//set back 
-	client1->call("setGameReset", 1, true);
+	cerr << "win: " << win << endl;
 }
 
 void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
 
 	// Set a new molecule to active every second (oculus should have 90 fps)
 
-	//if (tick == 200) {
-	//	moleculeContainer[lastUsedMolecule]->active = true;
-	//	activeMolecules++;
-	//	lastUsedMolecule++;
-	//	lastUsedMolecule %= 50;
-	//	tick = 0;
-	//}
 	if (gameState == 0) tick++;
 
 	// Check game state for game over or win
 	if (tick > 1000){// && gameState == 0) {
-		// looooose
-
-		//for (int i = 0; i < 50; i++) {
-		//	moleculeContainer[i]->active = true;
-		//	moleculeContainer[i]->spawn_point = glm::vec3(rand() % 4 - 2, rand() % 4 - 2, rand() % 4 - 2);
-		//	moleculeContainer[i]->position = moleculeContainer[i]->spawn_point;
-		//}
 
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		gameState = 2;
 	}
-	//else if (activeMolecules <= 0 && gameState == 0) {
-	else if(win){	// win!
+	else if (win){	// win!
 		gameState = 1;
-		glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
+		//glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
 	}
-
-	// Render initial active molecules
-	//for (int i = 0; i < 5; ++i) {
-	//	moleculeContainer[i]->active = true;
-	//}
 
 	// Render all the active molecules
 	for (int i = 0; i < MAX_NUMBER; ++i) {

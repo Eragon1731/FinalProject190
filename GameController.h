@@ -69,7 +69,6 @@ private:
 	GLchar* vertexShaderPath = "./controllerShader.vert";
 	GLchar* fragShaderPath   = "./controllerShader.frag";
 	GLint controllerShader;
-	GLuint controllerTextureID; 
 
 	/* Functions */
 	glm::mat4 GetModelMatrix();

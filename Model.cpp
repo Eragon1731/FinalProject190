@@ -6,6 +6,11 @@ Model::Model(GLchar * path) {
 
 void Model::Draw(GLint shaderProgram) {
 
+	//Texture render
+	glActiveTexture(GL_TEXTURE0); // diff 
+	glUniform1i(glGetUniformLocation(shaderProgram, "cube"), 0);//diff
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID); //diff
+
 	for (GLuint i = 0; i < meshes.size(); i++) {
 		meshes[i].draw(shaderProgram); 
 	}

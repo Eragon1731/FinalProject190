@@ -12,11 +12,14 @@ Factory::Factory() {
 	GLint facS = LoadShaders(vertexShaderPath, fragShaderPath); 
 	factoryShader = facS;
 
-	
 	// Creates the model for the factory
 	Model facM(pathToFactory);
 	factoryModel = facM;
+	
+	vector<const GLchar*> faces;
+	faces.push_back("../objects/Metal_Rusted.ppm"); 
 
+	factoryModel.loadTexturemap(faces); 
 	// Sets the position / rotation / scale
 	position = glm::vec3(0, 0, 0);
 }
@@ -54,9 +57,7 @@ void Factory::Render(glm::mat4 view, glm::mat4 proj) {
 		}
 	}
 	tempTrans = tempTrans * 0.01f; 
-	//model = glm::rotate(glm::mat4(1.0f), 0.7f, tempNorm); 
-	//model = glm::translate(model, tempTrans);
-	//model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+
 	glUniformMatrix4fv(glGetUniformLocation(factoryShader, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(factoryShader, "view"), 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(factoryShader, "projection"), 1, GL_FALSE, &proj[0][0]);

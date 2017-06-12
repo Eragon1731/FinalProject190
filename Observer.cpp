@@ -7,7 +7,11 @@ Observer::Observer() {
 	Model conM(pathToObserver);
 	observerModel = conM;
 	loadS();
+	vector<const GLchar* > faces;
+	for (int i = 0;i < 6;i++)
+		faces.push_back("../objects/vr_test_pattern.ppm");
 
+	observerModel.loadTexturemap(faces);
 	otherPosition = glm::vec3(0.0f,0.0f,0.0f); 
 }
 

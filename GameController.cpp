@@ -12,7 +12,6 @@ GameController::GameController() {
 	// Creates the model for the controller
 	Model conM (pathToController);
 	controllerModel = conM;
-	controllerTextureID = conM.textureID; 
 	// Sets the position / rotation / scale
 	position = glm::vec3(0, 0, 0);
 
@@ -63,11 +62,6 @@ void GameController::Render(glm::mat4 view, glm::mat4 proj) {
 	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "view"), 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(controllerShader, "projection"), 1, GL_FALSE, &proj[0][0]);
 
-	////Texture render
-	//glActiveTexture(GL_TEXTURE0); // diff 
-	//glUniform1i(glGetUniformLocation(controllerShader, "cube"), 0);//diff
-	//glBindTexture(GL_TEXTURE_CUBE_MAP, controllerTextureID); //diff
-
 	controllerModel.Draw(controllerShader);
 
 	// Get the trigger presses
@@ -84,7 +78,7 @@ void GameController::Render(glm::mat4 view, glm::mat4 proj) {
 		ray.dir = glm::normalize(tempPose * glm::vec3(0, 0, -1));
 		ray.dist = 75.0f; //magic number - same as laserDist in Laser.h
 
-		cout << "render laser" << endl; 
+		//cout << "render laser" << endl; 
 	}
 }
 
