@@ -25,7 +25,8 @@ public:
 	Model(GLchar * path);
 
 	void Draw(GLint shaderProgram); 
-
+	void loadTexturemap(std::vector<const GLchar*> faces);
+	GLuint textureID;
 private:
 	vector<Mesh> meshes;
 	string directory; 
@@ -33,5 +34,5 @@ private:
 	void loadModel(string path); 
 	void processNode(aiNode* node, const aiScene* scene); 
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-
+	unsigned char* loadPPM(const char* filename, int& width, int& height);
 };

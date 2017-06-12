@@ -266,7 +266,7 @@ public:
 		///////
 		float leapX; 
 		leapX = client->call("leapX", 0).as<float>();
-		cout << "leapX: " << leapX << endl;
+		//cout << "leapX: " << leapX << endl;
 		//setting up projection for another player
 		//CREATE SEPARATE CLASS FOR other player
 		float tempPos[3];

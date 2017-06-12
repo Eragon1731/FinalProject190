@@ -36,11 +36,10 @@ private:
 	
 	void loadS();
 
-
 	Model observerModel;
 	GLchar* pathToObserver = "../objects/cube.obj";
-	GLchar* vertexShaderPath = "./shader_1.vert";
-	GLchar* fragShaderPath = "./shader_1.frag";
+	GLchar* vertexShaderPath = "./controllerShader.vert";
+	GLchar* fragShaderPath = "./controllerShader.frag";
 	GLint observerShader;
 
 

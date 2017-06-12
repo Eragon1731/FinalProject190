@@ -5,6 +5,10 @@ Model::Model(GLchar * path) {
 }
 
 void Model::Draw(GLint shaderProgram) {
+	//Texture render
+	glActiveTexture(GL_TEXTURE0); // diff 
+	glUniform1i(glGetUniformLocation(shaderProgram, "cube"), 0);//diff
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID); //diff
 
 	for (GLuint i = 0; i < meshes.size(); i++) {
 		meshes[i].draw(shaderProgram); 
@@ -122,4 +126,83 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 	// Return a mesh object created from the extracted mesh data
 	return temp;
+}
+
+void Model::loadTexturemap(std::vector<const GLchar*> faces)
+{
+	glGenTextures(1, &textureID);
+
+	int width, height;
+	unsigned char* image;
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	for (unsigned int i = 0; i < faces.size(); i++) {
+
+		image = loadPPM(faces[i], width, height);
+		//  cerr<<"passed loadPPM: "<<endl;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	}
+	// cerr<<"outside loop"<<endl;
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	//cerr<<"textureID: "<<textureID<<endl;
+	//cerr<<"end of loadcubemap"<<endl;
+
+}
+
+unsigned char* Model::loadPPM(const char* filename, int& width, int& height) {
+
+	const int BUFSIZE = 128;
+	FILE* fp;
+	unsigned int read;
+	unsigned char* rawData;
+	char buf[3][BUFSIZE];
+	char* retval_fgets;
+	size_t retval_sscanf;
+
+	if ((fp = fopen(filename, "rb")) == NULL)
+	{
+		std::cerr << "error reading ppm file, could not locate " << filename << std::endl;
+		width = 0;
+		height = 0;
+		return NULL;
+	}
+	// Read magic number:
+	retval_fgets = fgets(buf[0], BUFSIZE, fp);
+
+	// Read width and height:
+	do
+	{
+		retval_fgets = fgets(buf[0], BUFSIZE, fp);
+	} while (buf[0][0] == '#');
+	retval_sscanf = sscanf(buf[0], "%s %s", buf[1], buf[2]);
+	width = atoi(buf[1]);
+	height = atoi(buf[2]);
+
+	// Read maxval:
+	do
+	{
+		retval_fgets = fgets(buf[0], BUFSIZE, fp);
+	} while (buf[0][0] == '#');
+
+	// Read image data:
+	rawData = new unsigned char[width * height * 3];
+	read = fread(rawData, width * height * 3, 1, fp);
+	fclose(fp);
+	if (read != 1)
+	{
+		std::cerr << "error parsing ppm file, incomplete data" << std::endl;
+		delete[] rawData;
+		width = 0;
+		height = 0;
+		return NULL;
+	}
+
+	return rawData;
+
 }
