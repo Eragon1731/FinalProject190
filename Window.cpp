@@ -142,13 +142,13 @@ void Window::idle_callback()
 		Window::resetGame(); 
 	}
 	//send position
-	client1->call("sendPosition", 1, controller->toWorld[3].x, controller->toWorld[3].y, controller->toWorld[3].z);
+	client1->call("sendPosition", 1, (float)controller->toWorld[3].x, (float)controller->toWorld[3].y, (float)controller->toWorld[3].z);
+	//cout << "controllerx: " << controller->toWorld[3].x << endl; 
 
 	float tempPos[3];
-	tempPos[0] = client1->call("positionX", 0).as<float>() * -20.0f;
-	tempPos[1] = client1->call("positionY", 0).as<float>() * -20.0f;
+	tempPos[0] = client1->call("positionX", 0).as<float>() * 20.0f;
+	tempPos[1] = client1->call("positionY", 0).as<float>() * 20.0f;
 	tempPos[2] = client1->call("positionZ", 0).as<float>() * 20.0f;
-	cout << "tempPos: " << tempPos[0]<<" "<<tempPos[1]<<" "<<tempPos[2] << endl;
 
 	glm::vec3 otherPose;
 	otherPose = glm::make_vec3(tempPos);
