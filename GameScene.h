@@ -22,7 +22,7 @@
 #include <OVR_CAPI.h>
 #include <OVR_CAPI_GL.h>
 
-#define MAX_MOLECULES 50
+#define MAX_MOLECULES 1
 
 #define FAIL(X) throw std::runtime_error(X)
 
@@ -58,8 +58,11 @@ private:
 
 	int lastUsedMolecule = 5;
 	int tick = 0;
-	int activeMolecules = 5;
+	//int activeMolecules = 5;
+	int activeMolecules = 1; 
 	int gameState = 0;
+
+	bool win = false; 
 
 public:
 
@@ -171,8 +174,8 @@ public:
 				if (numSelecting == 2 && moleculeContainer[i].isCO2 && gameState == 0) {
 					moleculeContainer[i].ChangeToO2();
 					moleculeContainer[i].isCO2 = false;
-					activeMolecules--;
-
+					//activeMolecules--;
+					win = true; 
 					//store molecule shot
 					client->call("setMoleculeShot", 0, i);
 				}
@@ -183,7 +186,8 @@ public:
 				if (gameState ==0 && moleculeContainer[isShot].isCO2 && numSelecting == 2) {
 					moleculeContainer[isShot].ChangeToO2();
 					moleculeContainer[isShot].isCO2 = false;
-					activeMolecules--;
+				//	activeMolecules--;
+					win = true; 
 				}
 				////////////////////////////////
 			}
@@ -202,11 +206,12 @@ public:
 			moleculeContainer[i].position = moleculeContainer[i].spawn_point;
 			moleculeContainer[i].rotation = 0;
 		}
-		activeMolecules = 5;
+		//activeMolecules = 5;
+		activeMolecules = 1; 
 		lastUsedMolecule = 5;
 		tick = 0;
 		gameState = 0;
-
+		win = false; 
 		client->call("setGameReset", 0, false);
 	}
 
@@ -216,45 +221,46 @@ public:
 	
 		// Set a new molecule to active every second (oculus should have 90 fps)
 
-		if (tick == 200) {
-			moleculeContainer[lastUsedMolecule].active = true;
-			activeMolecules++;
-			lastUsedMolecule++;
-			lastUsedMolecule %= MAX_MOLECULES;
-			tick = 0;
-		}
+		//if (tick == 200) {
+		//	moleculeContainer[lastUsedMolecule].active = true;
+		//	activeMolecules++;
+		//	lastUsedMolecule++;
+		//	lastUsedMolecule %= MAX_MOLECULES;
+		//	tick = 0;
+		//}
 		if(gameState == 0) tick++;
 
 		// Check game state for game over or win
-		if (activeMolecules > 10 && gameState == 0) {
+	//	if (activeMolecules > 10 && gameState == 0) {
 			// looooose
-
-			for (int i = 0; i < MAX_MOLECULES; i++) {
-				moleculeContainer[i].active = true;
+		if(tick > 1000){
+		//	for (int i = 0; i < MAX_MOLECULES; i++) {
+		/*		moleculeContainer[i].active = true;
 				moleculeContainer[i].spawn_point = glm::vec3(rand() % 4 - 2, rand() % 4 - 2, rand() %4 - 2);
 				moleculeContainer[i].position = moleculeContainer[i].spawn_point;
 			}
-
+*/
 			glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 			gameState = 2;
 			
 		}
-		else if (activeMolecules <= 0 && gameState == 0) {
-			// win!
+		//else if (activeMolecules <= 0 && gameState == 0) {
+		else if (win){	// win!
 			glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
 			gameState = 1;
 		}
 
 		// Render initial active molecules
-		for (int i = 0; i < 5; ++i) {
-			moleculeContainer[i].active = true;
-		}
+		//for (int i = 0; i < 5; ++i) {
+		//	moleculeContainer[i].active = true;
+		//}
 		
 		// Render all the active molecules
 		for (int i = 0; i < MAX_MOLECULES; ++i) {
-			if (moleculeContainer[i].active) {
+		//	if (moleculeContainer[i].active) {
+				moleculeContainer[i].active = true; 
 				moleculeContainer[i].Render(modelview, projection);
-			}
+		//	}
 		}
 
 		// Controlls for the left controller
