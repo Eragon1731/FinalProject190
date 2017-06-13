@@ -40,17 +40,22 @@ bool win = false;
 rpc::client * client1; 
 int clientID;
 int moleculeID;
-bool resetFlag = false;
-
+bool resetFlag = false; 
 ///////
+float xMove = 0.0f;
+float yMove = 0.0f;
+float zMove = 0.0f;
+///
 Observer * otherController; 
 CO2Molecule * moleculeContainer[MAX_NUMBER]; 
-
+Skybox * skybox; 
+GLint skyShader; 
 void Window::initialize_objects()
 {
 	factoryModel = new Factory(); 
 	controller = new GameController();
 	otherController = new Observer(); 
+	skybox = new Skybox(); 
 
 	shaderProgram = LoadShaders("./shader_1.vert", "./shader_1.frag");
 	cam = new StereoCamera(2000.0f, 0.25f, 1.3333f, 45.0f, 0.001f, 10000.0f);
@@ -62,6 +67,18 @@ void Window::initialize_objects()
 		moleculeContainer[i] = new CO2Molecule(co2M, o2M, shaderProgram);
 	}
 
+	skyShader = LoadShaders("./shader.vert", "./shader.frag");
+	
+	vector<const GLchar*> skyFaces; 
+	//load left eye
+	skyFaces.push_back("H:/Assignment2/Assignment2/textures/left-ppm/px.ppm");
+	skyFaces.push_back("H:/Assignment2/Assignment2/textures/left-ppm/nx.ppm");
+	skyFaces.push_back("H:/Assignment2/Assignment2/textures/left-ppm/py.ppm");
+	skyFaces.push_back("H:/Assignment2/Assignment2/textures/left-ppm/ny.ppm");
+	skyFaces.push_back("H:/Assignment2/Assignment2/textures/left-ppm/pz.ppm");
+	skyFaces.push_back("H:/Assignment2/Assignment2/textures/left-ppm/nz.ppm");
+
+	skybox->loadCubemap(skyFaces);
 	
 	//setting up server client
 	client1 = new rpc::client("localhost", 8080); 
@@ -144,8 +161,6 @@ void Window::idle_callback()
 	if (result) {
 		resetGame();
 	}
-	//check win
-	//gameState = client1->call("gameReset", 0).as<int>();
 
 	//send position
 	client1->call("sendPosition", 1, (float)controller->toWorld[3].x, (float)controller->toWorld[3].y, (float)controller->toWorld[3].z);
@@ -173,6 +188,7 @@ void Window::display_callback(GLFWwindow* window)
 	glm::mat4 leftProjection = cam->ApplyLeftFrustum();
 	glColorMask(true, false, false, false);
 
+	skybox->draw(skyShader, leftProjection);
 	factoryModel->Render(Window::V, leftProjection); 
 	controller->Render(Window::V, leftProjection);
 
@@ -187,6 +203,7 @@ void Window::display_callback(GLFWwindow* window)
 	glm::mat4 rightProjection = cam->ApplyRightFrustum();
 	glColorMask(false, false, true, false);
 
+	skybox->draw(skyShader, rightProjection);
 	factoryModel->Render(Window::V, rightProjection); 
 	controller->Render(Window::V, rightProjection);
 
@@ -216,13 +233,17 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 		else if (key == GLFW_KEY_R) {
-			client1->call("setGameReset", 1, 2);
+			client1->call("setGameReset", 1, true);
 			Window::resetGame();
 
 		}
 		//used to fire laser
 		else if (key == GLFW_KEY_SPACE) {
 			controller->renderLaser = true;
+		}
+		//moving the camera
+		else if (key == GLFW_KEY_RIGHT) {
+			
 		}
 	}
 	else {
@@ -248,7 +269,7 @@ void Window::resetGame() {
 	gameState = 0;
 	win = false;
 	client1->call("setGameReset", 0, false);
-	//client1->call("setGameReset", 1, false);
+	client1->call("setWinState", 0, false);
 	//cerr << "win: " << win << endl;
 }
 
@@ -259,7 +280,7 @@ void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
 	if (gameState == 0) tick++;
 
 	// Check game state for game over or win
-	if (tick > 1000){// && gameState == 0) {
+	if (!win && tick > 1000 && gameState == 0) {
 
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		gameState = 2;
@@ -267,7 +288,7 @@ void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
 	if (win){	// win!
 		gameState = 1;
 		glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
-		client1->call("setWinState", 1, 2);
+		client1->call("setWinState", 1, true);
 	}
 
 	// Render all the active molecules
@@ -278,7 +299,8 @@ void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
 		//}
 	}
 
-
+	//check win
+	win = client1->call("gameWin", 0).as<bool>();
 	checkMoleculeIntersection();
 }
 

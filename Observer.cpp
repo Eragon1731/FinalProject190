@@ -3,6 +3,7 @@
 Observer::Observer() {
 
 	observerWorld = glm::mat4(1.0f); 
+	observerWorld = glm::scale(observerWorld, glm::vec3(2.0f,2.0f,2.0f));
 	// Creates the model for the controller
 	Model conM(pathToObserver);
 	observerModel = conM;
