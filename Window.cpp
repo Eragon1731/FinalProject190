@@ -55,7 +55,7 @@ void Window::initialize_objects()
 	shaderProgram = LoadShaders("./shader_1.vert", "./shader_1.frag");
 	cam = new StereoCamera(2000.0f, 0.25f, 1.3333f, 45.0f, 0.001f, 10000.0f);
 
-	Model co2M("../objects/co2/co2.obj");
+	Model co2M("../objects/casque+loki.obj");
 	Model o2M("../objects/o2/o2.obj");
 
 	for (int i = 0; i < MAX_NUMBER; i++) {
@@ -138,14 +138,22 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 //Server to client logic
 void Window::idle_callback()
 {
-	
+	//check states
+	bool result = client1->call("resetLeap").as<bool>(); // client1->call("gameReset", 0).as<bool>();
+	//cout << "result " << result << endl; 
+	if (result) {
+		resetGame();
+	}
+	//check win
+	//gameState = client1->call("gameReset", 0).as<int>();
+
 	//send position
 	client1->call("sendPosition", 1, (float)controller->toWorld[3].x, (float)controller->toWorld[3].y, (float)controller->toWorld[3].z);
 	//cout << "controllerx: " << controller->toWorld[3].x << endl; 
 
 	float tempPos[3];
-	tempPos[0] = client1->call("positionX", 0).as<float>() * 20.0f;
-	tempPos[1] = client1->call("positionY", 0).as<float>() * 20.0f;
+	tempPos[0] = client1->call("positionX", 0).as<float>() * -20.0f;
+	tempPos[1] = client1->call("positionY", 0).as<float>() * -20.0f;
 	tempPos[2] = client1->call("positionZ", 0).as<float>() * 20.0f;
 
 	glm::vec3 otherPose;
@@ -208,9 +216,9 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 		else if (key == GLFW_KEY_R) {
+			client1->call("setGameReset", 1, 2);
 			Window::resetGame();
-			win = false;
-			glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+
 		}
 		//used to fire laser
 		else if (key == GLFW_KEY_SPACE) {
@@ -223,7 +231,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 }
 
 void Window::resetGame() {
-
+	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	for (int i = 0; i < MAX_NUMBER; i++) {
 		moleculeContainer[i]->active = false;
 		moleculeContainer[i]->isCO2 = true;
@@ -238,7 +246,10 @@ void Window::resetGame() {
 	lastUsedMolecule = 5;
 	tick = 0;
 	gameState = 0;
-	cerr << "win: " << win << endl;
+	win = false;
+	client1->call("setGameReset", 0, false);
+	//client1->call("setGameReset", 1, false);
+	//cerr << "win: " << win << endl;
 }
 
 void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
@@ -253,9 +264,10 @@ void Window::renderMolecules(glm::mat4 projection, glm::mat4 view){
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		gameState = 2;
 	}
-	else if (win){	// win!
+	if (win){	// win!
 		gameState = 1;
-		//glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
+		glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
+		client1->call("setWinState", 1, 2);
 	}
 
 	// Render all the active molecules
@@ -287,7 +299,7 @@ void Window::checkMoleculeIntersection() {
 	for (int i = 0; i < MAX_NUMBER; ++i) {
 		if (moleculeContainer[i]->active) {
 
-			int numSelecting = 0;
+			bool numSelecting = false;
 
 			moleculePos = moleculeContainer[i]->position;
 
@@ -297,27 +309,28 @@ void Window::checkMoleculeIntersection() {
 			rayDist = controller->ray.dist;
 			intersectionDist = Window::intersection(rayOrigin, rayDir, moleculePos, radius);
 			if (intersectionDist < rayDist && intersectionDist > 0.0f) {
-				numSelecting++;
+				numSelecting = true;
 			}
 
-			if (numSelecting == 1 && moleculeContainer[i]->isCO2 && gameState == 0) {
+			if (numSelecting && moleculeContainer[i]->isCO2 && gameState == 0) {
 				moleculeContainer[i]->ChangeToO2();
 				moleculeContainer[i]->isCO2 = false;
 				activeMolecules--;
 				win = true; 
 				//store molecule shot
-				client1->call("setMoleculeShot", 0, i);
+			//	client1->call("setMoleculeShot", 0, i);
+				numSelecting = false;
 			}
 
 			//check if opponent shot any
-			int isShot = client1->call("moleculeShot", 0).as<int>();
+			//int isShot = client1->call("moleculeShot", 0).as<int>();
 
-			if (gameState == 0 && moleculeContainer[isShot]->isCO2 && numSelecting == 1) {
-				moleculeContainer[isShot]->ChangeToO2();
-				moleculeContainer[isShot]->isCO2 = false;
-				activeMolecules--;
-				win = true; 
-			}
+			//if (gameState == 0 && moleculeContainer[isShot]->isCO2 && numSelecting == 1) {
+			//	moleculeContainer[isShot]->ChangeToO2();
+			//	moleculeContainer[isShot]->isCO2 = false;
+			//	activeMolecules--;
+			//	win = true; 
+			//}
 			////////////////////////////////
 		}
 	}

@@ -40,7 +40,7 @@ private:
 	Hand firsthand;
 
 	Model factoryModel;
-	GLchar* pathToFactory = "H:/FinalProject/LeapMotion/objects/factory1/factory1.obj";
+	GLchar* pathToFactory = "../objects/factory1/factory1.obj";
 	GLchar* vertexShaderPath = "./shader_1.vert";
 	GLchar* fragShaderPath = "./shader_1.frag";
 	GLint factoryShader;

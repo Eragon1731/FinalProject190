@@ -17,7 +17,8 @@ Factory::Factory() {
 	factoryModel = facM;
 	
 	vector<const GLchar*> faces;
-	faces.push_back("../objects/Metal_Rusted.ppm"); 
+	for(int i =0;i<6;i++)
+		faces.push_back("../objects/Metal_Rusted.ppm"); 
 
 	factoryModel.loadTexturemap(faces); 
 	// Sets the position / rotation / scale

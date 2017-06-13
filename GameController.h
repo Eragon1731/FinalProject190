@@ -66,8 +66,8 @@ private:
 	//Laser laser;
 	Model controllerModel;
 	GLchar* pathToController = "H:/FinalProject/LeapMotion/objects/cube.obj";
-	GLchar* vertexShaderPath = "./controllerShader.vert";
-	GLchar* fragShaderPath   = "./controllerShader.frag";
+	GLchar* vertexShaderPath = "./shader_1.vert";
+	GLchar* fragShaderPath   = "./shader_1.frag";
 	GLint controllerShader;
 
 	/* Functions */

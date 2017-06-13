@@ -12,17 +12,16 @@ GameController::GameController() {
 	// Creates the model for the controller
 	Model conM (pathToController);
 	controllerModel = conM;
-	// Sets the position / rotation / scale
-	position = glm::vec3(0, 0, 0);
 
 	loadS(); 
 	//load texture maps 
 	vector<const GLchar * > textureFile;
 	for (int i = 0; i < 6; i++) {
-		textureFile.push_back("../objects/vr_test_pattern.ppm");
+		textureFile.push_back("../objects/Metal_Rusted.ppm");
 	}
-
 	conM.loadTexturemap(textureFile); 
+	// Sets the position / rotation / scale
+	position = glm::vec3(0, 0, 0);
 }
 
 void GameController::loadS() {
