@@ -179,18 +179,18 @@ public:
 					//activeMolecules--;
 					win = true; 
 					//store molecule shot
-					client->call("setMoleculeShot", 0, i);
+				//	client->call("setMoleculeShot", 0, i);
 				}
 
 				//check if opponent shot any
-				int isShot = client->call("moleculeShot", 0).as<int>();
+			//	int isShot = client->call("moleculeShot", 0).as<int>();
 
-				if (gameState ==0 && moleculeContainer[isShot].isCO2 && numSelecting == 2) {
-					moleculeContainer[isShot].ChangeToO2();
-					moleculeContainer[isShot].isCO2 = false;
-				//	activeMolecules--;
-					win = true; 
-				}
+				//if (gameState ==0 && moleculeContainer[isShot].isCO2 && numSelecting == 2) {
+				//	moleculeContainer[isShot].ChangeToO2();
+				//	moleculeContainer[isShot].isCO2 = false;
+				////	activeMolecules--;
+				//	win = true; 
+				//}
 				////////////////////////////////
 			}
 		}
@@ -214,7 +214,8 @@ public:
 		tick = 0;
 		gameState = 0;
 		win = false; 
-		client->call("setGameReset", 0, false);
+		//client->call("setGameReset", 0, false);
+		client->call("setGameReset", 1, 2);
 	}
 
 	void render(const mat4 & projection, const mat4 & modelview) {
@@ -231,6 +232,7 @@ public:
 		else if (win){	// win!
 			glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
 			gameState = 1;
+		//	client->call("setWinState", 0,true).as<float>();
 		}
 
 		// Render all the active molecules
@@ -252,14 +254,14 @@ public:
 		////sending position of left 
 		//sending the position vector
 		//client->call("clientPosition", 0, leftController.position.x, leftController.position.y, leftController.position.z);
-		client->call("sendPosition",0, leftController.position.x, leftController.position.y, leftController.position.z);
+		client->call("sendPosition",0, modelview[3].x, modelview[3].y, modelview[3].z);
 		
 		// Controlls for the right controller
 		rightController.inputState = hmdData.inputState;
 		rightController.btn1 = ovrTouch_A;
 		rightController.btn2 = ovrTouch_B;
 		rightController.hand = ovrHand_Right;
-
+		
 		rightController.position = hmdData.rightControllerPos;
 		rightController.rotation = hmdData.rightControllerOrientation;
 		rightController.Render(modelview, projection);
@@ -285,7 +287,9 @@ public:
 			resetGame();
 		}
 
-		if (client->call("gameReset", 0).as<bool>()) {
+		bool result = client->call("gameReset", 1).as<bool>();
+		cout << "leap result: " << result << endl; 
+		if (result) {
 			resetGame(); 
 		}
 
