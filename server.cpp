@@ -16,7 +16,7 @@ struct Client
 	float pz = 0.0f;
 
 	int id; 
-	int gamestate;
+	int gamestate = 0;
 	int moleculeid; 
 
 	bool resetState = false; 
@@ -30,6 +30,10 @@ float c2_y = 0.0f;
 float c2_z = 0.0f; 
 
 ////////////
+bool c1_reset = false; 
+bool c2_reset = false;
+/////////
+
 //assignID ok
 int assignID(int i) {
 	
@@ -65,10 +69,12 @@ void setWinState(int id, int winState) {
 int gameWin(int id) {
 
 	if (id == 0) {
-		return client2.gamestate; 
+		cout << "1 gamestate: " << client1.gamestate << endl;
+		return client1.gamestate; 
 	}
 	if (id == 1) {
-		return client1.gamestate; 
+		cout << "2 gamestate: " << client2.gamestate << endl;
+		return client2.gamestate; 
 	}
 }
 
@@ -96,12 +102,14 @@ int moleculeShot( int id) {
 //setting reset state
 void setGameReset(int id, bool resetFlag) {
 	if (id == 0) {
+		c1_reset = resetFlag;
 		client1.resetState = resetFlag;
-		cout << "0 resetState: " << client1.resetState << endl;
+		cout << "0 resetState: " << c1_reset << endl;
 	}
 	if (id == 1) {
+		c2_reset = resetFlag; 
 		client2.resetState = resetFlag; 
-		cout << "1 resetState: " << client2.resetState << endl;
+		//cout << "1 resetState: " << client2.resetState << endl;
 	}
 }
 
@@ -109,15 +117,18 @@ void setGameReset(int id, bool resetFlag) {
 bool gameReset(int id) {
 
 	if (id == 0) {
-		//cout << "0 returning state of 1: " << client2.resetState << endl;
-		return client2.resetState;
+		cout << "0 returning state of 1: " << c1_reset << endl;
+		return c1_reset;
 	}
 	if (id == 1) {
 		//cout << "1 returning state of 0: " << client1.resetState << endl;
-		return client1.resetState; 
+		return c2_reset; 
 	}
 }
 
+bool resetLeap() {
+	return c1_reset;
+}
 void sendPosition(int id, float x, float y, float z) {
 	if (id == client1.id) {
 		client1.px = x;
@@ -131,7 +142,7 @@ void sendPosition(int id, float x, float y, float z) {
 		c2_y = y;
 		client2.pz = z;
 		c2_z = z; 
-		cout << "client2 not empty: "<< c2_x <<" "<<c2_y<<" "<<c2_z<< endl;
+	//	cout << "client2 not empty: "<< c2_x <<" "<<c2_y<<" "<<c2_z<< endl;
 	}
 }
 //for x
@@ -143,10 +154,10 @@ float positionX(int id) {
 	}
 	else
 		return 0; 
-	cout << "client2 data before: " << client2.px << endl;
+	//cout << "client2 data before: " << client2.px << endl;
 	if (id == client2.id && client2.px != 0) {
-		cout << "getting position: " << id << endl;
-		cout << "client2 data"<<client2.px << endl;
+		//cout << "getting position: " << id << endl;
+		//cout << "client2 data"<<client2.px << endl;
 		return client2.px;
 	}
 	else
@@ -172,15 +183,15 @@ float positionZ(int id) {
 }
 //for leap->ocu only
 float leapX(int id) {
-	cout << "return " << id << " " << c2_x << endl;
+	//cout << "return " << id << " " << c2_x << endl;
 	return c2_x;
 }
 float leapY(int id) {
-	cout << "return " << id << " " << c2_y << endl;
+	//cout << "return " << id << " " << c2_y << endl;
 	return c2_y;
 }
 float leapZ(int id) {
-	cout << "return " << id << " " << c2_z << endl;
+	//cout << "return " << id << " " << c2_z << endl;
 	return c2_z;
 }
 
@@ -211,6 +222,7 @@ int main() {
 	//game reset
 	srv.bind("setGameReset", &setGameReset);
 	srv.bind("gameReset", &gameReset);
+	srv.bind("resetLeap", &resetLeap); 
 
 	srv.run(); 
 	return 0;
