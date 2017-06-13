@@ -16,7 +16,7 @@ struct Client
 	float pz = 0.0f;
 
 	int id; 
-	int gamestate = 0;
+	bool win = false;
 	int moleculeid; 
 
 	bool resetState = false; 
@@ -33,6 +33,9 @@ float c2_z = 0.0f;
 bool c1_reset = false; 
 bool c2_reset = false;
 /////////
+bool c1_game = false;
+bool c2_game = false;
+/////////// 
 
 //assignID ok
 int assignID(int i) {
@@ -56,25 +59,29 @@ int quitGame(int id) {
 
 
 //setting win or loose state 
-void setWinState(int id, int winState) {
+void setWinState(int id, bool winState) {
 	if (id == 0) {
-		client1.gamestate = winState;
+		c1_game = winState; 
+		client1.win = winState;
 	}
 	if (id == 1) {
-		client2.gamestate = winState; 
+		c2_game = winState; 
+		client2.win = winState;
 	}
 }
 
 //return opponent's state 
-int gameWin(int id) {
+bool gameWin(int id) {
 
 	if (id == 0) {
-		cout << "1 gamestate: " << client1.gamestate << endl;
-		return client1.gamestate; 
+		cout << "1 win: " << client1.win << endl;
+		//return client1.win;
+		return c1_game; 
 	}
 	if (id == 1) {
-		cout << "2 gamestate: " << client2.gamestate << endl;
-		return client2.gamestate; 
+		cout << "2 win: " << client2.win << endl;
+		//return client2.win;
+		return c2_game; 
 	}
 }
 
@@ -103,12 +110,12 @@ int moleculeShot( int id) {
 void setGameReset(int id, bool resetFlag) {
 	if (id == 0) {
 		c1_reset = resetFlag;
-		client1.resetState = resetFlag;
-		cout << "0 resetState: " << c1_reset << endl;
+		//client1.resetState = resetFlag;
+		//cout << "0 resetState: " << c1_reset << endl;
 	}
 	if (id == 1) {
 		c2_reset = resetFlag; 
-		client2.resetState = resetFlag; 
+		//client2.resetState = resetFlag; 
 		//cout << "1 resetState: " << client2.resetState << endl;
 	}
 }
