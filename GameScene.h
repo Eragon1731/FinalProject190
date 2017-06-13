@@ -178,8 +178,6 @@ public:
 					moleculeContainer[i].isCO2 = false;
 					//activeMolecules--;
 					win = true; 
-					//store molecule shot
-				//	client->call("setMoleculeShot", 0, i);
 				}
 
 				//check if opponent shot any
@@ -214,8 +212,8 @@ public:
 		tick = 0;
 		gameState = 0;
 		win = false; 
-		//client->call("setGameReset", 0, false);
-		client->call("setGameReset", 1, 2);
+		client->call("setWinState", 1, false);
+		client->call("setGameReset", 1, false);
 	}
 
 	void render(const mat4 & projection, const mat4 & modelview) {
@@ -224,15 +222,15 @@ public:
 
 		if(gameState == 0) tick++;
 
-
-		if(tick > 1000){
+		if( !win && gameState ==0 && tick > 1000){
 			glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 			gameState = 2;
 		}
-		else if (win){	// win!
+		
+		if (win){	// win!
 			glClearColor(135.0f / 255.0f, 206.0f / 255.0f, 250.0f / 255.0f, 1.0f);
 			gameState = 1;
-		//	client->call("setWinState", 0,true).as<float>();
+			client->call("setWinState", 0,true);
 		}
 
 		// Render all the active molecules
@@ -292,8 +290,9 @@ public:
 		if (result) {
 			resetGame(); 
 		}
-
+		win = client->call("gameWin", 1).as<bool>();
 		checkMoleculeIntersection();
-		otherController->Render(modelview, projection);
+		//otherController->Render(modelview, projection);
+
 	}
 };
